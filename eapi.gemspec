@@ -30,4 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "coveralls"
 
   spec.add_dependency 'activesupport', '~> 4'
+  spec.add_dependency 'activemodel', '~> 4'
 end
