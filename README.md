@@ -2,6 +2,9 @@
 
 ruby gem for building complex structures that will end up in hashes (initially devised for ElasticSearch search requests)
 
+[![Coverage Status](https://coveralls.io/repos/eturino/eapi/badge.png)](https://coveralls.io/r/eturino/eapi)
+[![Build Status](https://travis-ci.org/eturino/eapi.svg?branch=master)](https://travis-ci.org/eturino/eapi)
+
 ## Installation
 
 Add this line to your application's Gemfile:
