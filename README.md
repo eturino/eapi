@@ -26,6 +26,39 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+### Create a EAPI enabled class
+
+Just include the module `Eapi::Common` into your class.
+
+```ruby    
+class MyTestKlass
+  include Eapi::Common
+
+  property :something
+end
+```
+
+### Initialize
+
+`Eapi::Common` will add a `initialize` method to your class that will accept a hash. It will recognise the defined properties in that hash and will set them. 
+
+For now any unrecognised property in the hash will be ignored. This may change in the future.
+
+```ruby    
+class MyTestKlass
+  include Eapi::Common
+
+  property :something
+end
+
+x = MyTestKlass.new something: 1
+x.something # => 1
+```
+
+
+
+
+
 ## Contributing
 
 1. Fork it ( https://github.com/eturino/eapi/fork )
