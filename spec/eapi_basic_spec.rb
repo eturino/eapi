@@ -27,13 +27,6 @@ RSpec.describe Eapi do
       end
     end
 
-    describe 'Eapi.MyTestKlass(...)' do
-      it 'calls EapiTestClass.new' do
-        eapi = Eapi.MyTestKlass(something: :hey)
-        expect(eapi).to be_a Eapi::MyTestKlass
-        expect(eapi.something).to eq :hey
-      end
-    end
   end
 
 end

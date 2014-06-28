@@ -1,9 +1,10 @@
 module Eapi
   module Common
     extend ActiveSupport::Concern
-    included do
-      include ActiveModel::Validations
-      include Eapi::Methods::Properties::InstanceMethods
+    included do |klass|
+      klass.send :include, ActiveModel::Validations
+      klass.send :include, Eapi::Methods::Properties::InstanceMethods
+      Eapi::Children.append klass
     end
 
     def initialize(** properties)
