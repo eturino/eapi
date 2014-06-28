@@ -5,6 +5,7 @@ ruby gem for building complex structures that will end up in hashes (initially d
 [![Coverage Status](https://coveralls.io/repos/eturino/eapi/badge.png)](https://coveralls.io/r/eturino/eapi)
 [![Build Status](https://travis-ci.org/eturino/eapi.svg?branch=master)](https://travis-ci.org/eturino/eapi)
 [![Gem Version](https://badge.fury.io/rb/eapi.svg)](http://badge.fury.io/rb/eapi)
+[![Code Climate](https://codeclimate.com/github/eturino/eapi.png)](https://codeclimate.com/github/eturino/eapi)
 
 ## Installation
 
