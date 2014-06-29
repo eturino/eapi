@@ -206,7 +206,7 @@ class ExampleEapi
   property :other
 end
 
-# TESTING #to_h
+# TESTING `to_h`
 
 list = Set.new [
                  OpenStruct.new(a: 1, 'b' => 2),
@@ -236,17 +236,85 @@ eapi.to_h # =>
 
 When defining the property, we can specify some options to specify what values are expected in that property. This serves for validation and automatic initialisation.
 
-#### required
+It uses `ActiveModel::Validations`. When `to_h` is called in an Eapi object, the `valid?` method will be called and if the object is not valid an `Eapi::Errors::InvalidElementError` error will raise.
 
-A required property will 
+#### Mark a property as Required with `required` option
 
-#### Type
+A required property will fail if the value is not present. It will use `ActiveModel::Validations` inside and will effectively do a `validates_presence_of :property_name`. 
 
-TODO Doc
+example:
 
-#### Custom validations
+```ruby
+class TestKlass
+  include Eapi::Common
 
-TODO Doc
+  property :something, required: true
+end
+
+eapi = TestKlass.new
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Something can't be blank"]
+eapi.errors.messages # => {something: ["can't be blank"]}
+```
+
+#### Specify the property's Type with `type` option
+
+If a property is defined to be of a specific type, the value will be validated to meet that criteria. It means that the value must be of the specified type. `value.kind_of?(type)`
+
+example:
+ 
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, type: Hash
+end
+
+eapi = TestKlass.new something: 1
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Something must be a Hash"]
+eapi.errors.messages # => {something: ["must be a Hash"]}
+```
+
+#### Custom validation with `validate_with` option
+
+A more specific validation can be used using `validate_with`, that works the same way as `ActiveModel::Validations`. 
+
+example:
+ 
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, validate_with: ->(record, attr, value) do
+    record.errors.add(attr, "must pass my custom validation") unless value == :valid_val
+  end
+end
+
+eapi = TestKlass.new something: 1
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Something must pass my custom validation"]
+eapi.errors.messages # => {something: ["must pass my custom validation"]}
+```
+
+#### Validations from `ActiveModel::Validations`
+
+All other ActiveModel::Validations can be used:
+
+```ruby
+class MyTestClassVal5
+  include Eapi::Common
+
+  property :something
+  validates :something, numericality: true
+
+end
+
+eapi = MyTestClassVal5.new something: 'something'
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Something is not a number"]
+eapi.errors.messages # => {something: ["must is not a number"]}
+```
 
 #### List properties
 

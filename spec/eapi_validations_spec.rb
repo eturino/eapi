@@ -75,6 +75,26 @@ RSpec.describe Eapi do
       eapi.something :valid_val
       expect(eapi).to be_valid
     end
+
+    it 'normal ActiveModel::Validations can be used' do
+      class MyTestClassVal5
+        include Eapi::Common
+
+        property :something
+
+        validates :something, numericality: true
+
+      end
+
+      eapi = MyTestClassVal5.new something: 'something'
+
+      expect(eapi).not_to be_valid
+      expect(eapi.errors.full_messages).to eq ["Something is not a number"]
+      expect(eapi.errors.messages).to eq({something: ["is not a number"]})
+
+      eapi.something 1
+      expect(eapi).to be_valid
+    end
   end
 
 end
