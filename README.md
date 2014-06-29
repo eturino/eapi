@@ -26,7 +26,7 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
-### Create a EAPI enabled class
+### including EAPI into your class
 
 Just include the module `Eapi::Common` into your class.
 
