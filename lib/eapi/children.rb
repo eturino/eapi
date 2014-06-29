@@ -42,9 +42,5 @@ module Eapi
       end
     end
 
-    def self.remove_base_from_key(base_key, k)
-      k.sub("#{base_key}/", '')
-    end
-
   end
 end
