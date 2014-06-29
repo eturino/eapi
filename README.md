@@ -516,6 +516,12 @@ obj.is_an_one_thing? # => true
 obj.is_a_super_duper_thing? # => false
 ```
 
+## TODO
+
+1. Method-call-initialise shortcut to be able to ignore 'eapi_' in the function name and still recognise classes within that module.
+2. Ability (with tests) to have another module that extend Eapi work as base for method-call-initialise shortcut. Also see (1)
+3. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
+
 ## Contributing
 
 1. Fork it ( https://github.com/eturino/eapi/fork )
