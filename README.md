@@ -24,6 +24,12 @@ Or install it yourself as:
 
 ## Dependencies
 
+### Ruby version
+
+Works with ruby 2. Tested with MRI 2.1.1 and 2.0.0 
+
+### Gem dependencies
+
 This gem uses ActiveSupport (version 4) and also the ActiveModel Validations (version 4)
 
 Extracted from the gemspec:
