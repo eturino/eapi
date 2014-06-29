@@ -36,6 +36,23 @@ RSpec.describe Eapi do
       end
     end
 
+    describe '#get' do
+      it 'will use the getter' do
+        eapi = MyTestKlass.new something: :hey
+        expect(eapi.get(:something)).to eq :hey
+        expect(eapi.get('something')).to eq :hey
+      end
+
+    end
+    
+    describe '#set' do
+      it 'will use the fluent setter' do
+        eapi = MyTestKlass.new
+        expect(eapi.set(:something, :hey)).to equal eapi
+        expect(eapi.get(:something)).to eq :hey
+      end
+    end
+
   end
 
 end
