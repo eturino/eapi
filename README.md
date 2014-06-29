@@ -55,6 +55,48 @@ x = MyTestKlass.new something: 1
 x.something # => 1
 ```
 
+### Object creation shortcut: calling methods in Eapi
+
+Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
+
+The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search.new(name: 'Paco')`. We can also use `Eapi.Esr_Search(...)` and other combinations.
+
+To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
+
+```ruby
+class MyTestKlassOutside
+  include Eapi::Common
+
+  property :something
+end
+
+module Somewhere
+  class TestKlassInModule
+    include Eapi::Common
+
+    property :something
+  end
+end
+```
+
+As shown by rspec run:
+
+```
+    initialise using method calls to Eapi
+      Eapi.MyTestKlassOutside(...)
+        calls MyTestKlassOutside.new
+      Eapi.my_test_klass_outside(...)
+        calls MyTestKlassOutside.new
+      Eapi.Somewhere__TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere__test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.Somewhere_TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere_test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+```
+
 ### Defining properties
 
 We define properties in our class with the instruction `property` as shown:
@@ -104,7 +146,7 @@ x.one # => :hey
 x.two # => :you
 ```
 
-#### getter method as fluent setter
+#### Getter method as fluent setter
 
 The getter method also works as fluent setter. If we pass an argument to it, it will call the fluent setter
 ```ruby
@@ -114,48 +156,14 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
-### Object creation shortcut: calling methods in Eapi
+### List properties
+TODO Doc
 
-Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
+### validations
+TODO Doc
 
-The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search.new(name: 'Paco')`. We can also use `Eapi.Esr_Search(...)` and other combinations.
-
-To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
-
-```ruby
-class MyTestKlassOutside
-  include Eapi::Common
-
-  property :something
-end
-
-module Somewhere
-  class TestKlassInModule
-    include Eapi::Common
-
-    property :something
-  end
-end
-```
-
-As shown by rspec run:
-
-```
-    initialise using method calls to Eapi
-      Eapi.MyTestKlassOutside(...)
-        calls MyTestKlassOutside.new
-      Eapi.my_test_klass_outside(...)
-        calls MyTestKlassOutside.new
-      Eapi.Somewhere__TestKlassInModule(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.somewhere__test_klass_in_module(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.Somewhere_TestKlassInModule(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.somewhere_test_klass_in_module(...)
-        calls Somewhere::TestKlassInModule.new
-```
-
+### to_h
+TODO Doc
 
 
 ## Contributing
