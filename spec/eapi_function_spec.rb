@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Eapi do
 
-  context 'basic behaviour' do
+  context 'function initializer' do
     class MyTestKlassOutside
       include Eapi::Common
 
@@ -61,6 +61,10 @@ RSpec.describe Eapi do
           end
         end
       end
+    end
+
+    it 'will raise NoMethodError if a valid class is not found' do
+      expect { Eapi.this_one_does_not_exist }.to raise_exception NoMethodError
     end
   end
 
