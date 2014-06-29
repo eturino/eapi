@@ -33,7 +33,7 @@ module Eapi
     def create_hash
       {}.tap do |hash|
         self.class.properties.each do |prop|
-          val        = Eapi::Common::Values.value_for_hash(get(prop))
+          val        = Eapi::ValueConverter.convert_value(get(prop))
           hash[prop] = val unless val.nil?
         end
       end
@@ -45,43 +45,5 @@ module Eapi
       include Eapi::Methods::Properties::ClassMethods
     end
 
-    module Values
-      def self.value_for_hash(value)
-        if value.nil?
-          nil
-        elsif is_list? value
-          value_from_list value
-        elsif is_hash?(value)
-          value_from_hash value
-        else
-          value
-        end
-      end
-
-      private
-      def self.is_hash?(value)
-        value.respond_to? :to_h
-      end
-
-      def self.is_list?(value)
-        return false if value.kind_of?(Hash) || value.kind_of?(OpenStruct)
-
-        value.respond_to? :to_a
-      end
-
-      def self.value_from_list(value)
-        value.to_a.map { |e| value_for_hash e }.compact
-      end
-
-      def self.value_from_hash(value)
-        {}.tap do |hash|
-          value.to_h.each_pair do |k, v|
-            val     = value_for_hash v
-            hash[k] = val unless val.nil?
-          end
-          hash.deep_symbolize_keys!
-        end
-      end
-    end
   end
 end

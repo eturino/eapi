@@ -6,6 +6,7 @@ require 'eapi/errors'
 require 'eapi/children'
 require 'eapi/multiple'
 require 'eapi/methods'
+require 'eapi/value_converter'
 require 'eapi/common'
 
 
