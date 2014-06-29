@@ -44,7 +44,7 @@ RSpec.describe Eapi do
       end
 
     end
-    
+
     describe '#set' do
       it 'will use the fluent setter' do
         eapi = MyTestKlass.new
