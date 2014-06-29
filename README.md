@@ -336,6 +336,30 @@ eapi.errors.full_messages # => ["Something is not a number"]
 eapi.errors.messages # => {something: ["must is not a number"]}
 ```
 
+#### Unrecognised property definition options
+
+If the definition contained any unrecognised options, it will still be stored. No error is reported yet, but this behaviour may change in the future.
+
+#### See property definition with `.definition_for` class method
+
+You can see (but not edit) the definition of a property calling the `definition_for` class method. It will also contain the unrecognised options.
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, type: Hash, unrecognised_option: 1
+end
+
+definition = TestKlass.definition_for :something # => { type: Hash, unrecognised_option: 1 }
+
+# attempt to change the definition...
+definition[:type] = Array
+
+# ...has no effect
+TestKlass.definition_for :something # => { type: Hash, unrecognised_option: 1 }
+```
+
 ### List properties
 
 a property can be defined as a multiple property. This will affect the methods defined in the class (it will create a fluent 'adder' method `add_property_name`), and also the automatic initialisation.
