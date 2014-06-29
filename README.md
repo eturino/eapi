@@ -259,7 +259,7 @@ eapi.errors.messages # => {something: ["can't be blank"]}
 
 #### Specify the property's Type with `type` option
 
-If a property is defined to be of a specific type, the value will be validated to meet that criteria. It means that the value must be of the specified type. `value.kind_of?(type)`
+If a property is defined to be of a specific type, the value will be validated to meet that criteria. It means that the value must be of the specified type. It will use `value.kind_of?(type)` and if that fails it will use `value.is?(type)` if defined.
 
 example:
  
@@ -290,6 +290,8 @@ eapi.something # => nil
 eapi.init_something
 eapi.something # => {}
 ```
+
+To trigger the error, the value must not be an instance of the given Type, and also must not respond `true` to `value.is?(type)`
 
 #### Custom validation with `validate_with` option
 
@@ -399,6 +401,43 @@ x = TestKlass.new
 x.add_p1(1).add_p2(2).add_p3(3).add_p4(4)
 ```
 
+### Pose as other types
+
+An Eapi class can poses as other types, for purposes of `type` checking in a property definition. We use the class method `is` for this.
+
+example:
+
+```ruby
+class SuperTestKlass
+  include Eapi::Common
+end
+ 
+class TestKlass < SuperTestKlass
+  is :one_thing, :other_thing, OtherType
+end
+
+TestKlass.is? TestKlass # => true
+TestKlass.is? 'TestKlass' # => true
+TestKlass.is? :TestKlass # => true
+
+TestKlass.is? SuperTestKlass # => true
+TestKlass.is? 'SuperTestKlass' # => true
+TestKlass.is? :SuperTestKlass # => true
+
+TestKlass.is? :one_thing # => true
+TestKlass.is? :other_thing # => true
+TestKlass.is? :other_thing # => true
+TestKlass.is? OtherType # => true
+TestKlass.is? :OtherType # => true
+
+TestKlass.is? SomethingElse # => false
+TestKlass.is? :SomethingElse # => false
+
+# also works on instance
+obj = TestKlass.new
+obj.is? TestKlass # => true
+obj.is? :one_thing # => true
+```
 
 ## Contributing
 

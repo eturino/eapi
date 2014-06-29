@@ -4,12 +4,13 @@ module Eapi
     included do |klass|
       klass.send :include, ActiveModel::Validations
       klass.send :include, Eapi::Methods::Properties::InstanceMethods
+      klass.send :include, Eapi::Methods::Types::InstanceMethods
       Eapi::Children.append klass
     end
 
     def initialize(** properties)
       properties.each do |k, v|
-        normal_setter = "#{k}="
+        normal_setter = Eapi::Methods::Names.setter k
         #TODO: what to do with unrecognised properties
         send normal_setter, v if respond_to? normal_setter
       end

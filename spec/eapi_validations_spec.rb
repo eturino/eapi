@@ -44,19 +44,6 @@ RSpec.describe Eapi do
       expect(eapi.errors.messages).to eq({something: ["can't be blank"]})
     end
 
-    it 'if type specified with a class, validates it' do
-      class MyTestClassVal3
-        include Eapi::Common
-
-        property :something, type: Hash
-      end
-
-      eapi = MyTestClassVal3.new something: 1
-      expect(eapi).not_to be_valid
-      expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
-      expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
-    end
-
     it 'if validate_with: specified with a class, uses it to validate the property' do
       class MyTestClassVal4
         include Eapi::Common
@@ -94,6 +81,37 @@ RSpec.describe Eapi do
 
       eapi.something 1
       expect(eapi).to be_valid
+    end
+
+    context 'type is specified with a class' do
+      class SimilarToHash
+        def is?(type)
+          [:SimilarToHash, :Hash].include? type.to_s.to_sym
+        end
+      end
+
+      class MyTestClassValType
+        include Eapi::Common
+
+        property :something, type: Hash
+      end
+
+      it 'invalid if value is not of that type' do
+        eapi = MyTestClassValType.new something: 1
+        expect(eapi).not_to be_valid
+        expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
+        expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
+      end
+
+      it 'valid if value is of the given type' do
+        eapi = MyTestClassValType.new something: {}
+        expect(eapi).to be_valid
+      end
+
+      it 'valid if value is not an instance of the given type but responds true to `.is?(type)`' do
+        eapi = MyTestClassValType.new something: SimilarToHash.new
+        expect(eapi).to be_valid
+      end
     end
   end
 

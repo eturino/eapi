@@ -6,10 +6,6 @@ module Eapi
         "init_#{field}"
       end
 
-      def self.clear(field)
-        "clear_#{field}"
-      end
-
       def self.add(field)
         "add_#{field}"
       end

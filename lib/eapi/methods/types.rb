@@ -17,15 +17,29 @@ module Eapi
         end
       end
 
+      def self.to_type_sym(x)
+        x.to_s.to_sym
+      end
+
+      module InstanceMethods
+        def is?(type)
+          self.class.is?(type)
+        end
+      end
+
 
       module ClassMethods
         def is?(type)
-          @i_am_a && @i_am_a.include?(type.to_sym)
+          self == type ||
+            Types.to_type_sym(self) == Types.to_type_sym(type) ||
+            @i_am_a && @i_am_a.include?(type.to_s.to_sym)
         end
 
         def is(*types)
+          ts = types.map { |t| Types.to_type_sym t }
+
           @i_am_a ||= []
-          @i_am_a.concat(types.map(&:to_sym))
+          @i_am_a.concat ts
         end
       end
 
