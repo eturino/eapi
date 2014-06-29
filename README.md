@@ -40,8 +40,6 @@ spec.add_dependency 'activemodel', '~> 4'
 
 ## Usage
 
-TODO: Write usage instructions here
-
 ### including EAPI into your class
 
 Just include the module `Eapi::Common` into your class.
@@ -405,6 +403,43 @@ end
 
 x = TestKlass.new
 x.add_p1(1).add_p2(2).add_p3(3).add_p4(4)
+```
+
+#### Element validation
+
+Same as property validation, but for specific the elements in the list.
+
+We can use `element_type` option in the definition, and it will check the type of each element in the list, same as `type` option does with the type of the property's value.
+
+We can also specify `validate_element_with` option, and it will act the same as `validate_with` but for each element in the list.
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, multiple: true, element_type: Hash
+  property :other, multiple: true, validate_element_with: ->(record, attr, value) do
+    record.errors.add(attr, "element must pass my custom validation") unless value == :valid_val
+  end
+end
+
+eapi = TestKlass.new
+eapi.add_something 1
+
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Something element must be a Hash"]
+eapi.errors.messages # => {something: ["must element be a Hash"]}
+
+eapi.something [{a: :b}]
+eapi.valid? # => true
+
+eapi.add_other 1
+eapi.valid? # => false
+eapi.errors.full_messages # => ["Other element must pass my custom validation"]
+eapi.errors.messages # => {other: ["element must pass my custom validation"]}
+
+eapi.other [:valid_val]
+eapi.valid? # => true
 ```
 
 ### Pose as other types

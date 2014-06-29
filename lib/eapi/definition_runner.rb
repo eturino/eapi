@@ -11,7 +11,7 @@ module Eapi
       run_required
       run_validate_type
       run_validate_with
-      run_validate_type_element
+      run_validate_element_type
       run_validate_element_with
     end
 
@@ -27,7 +27,7 @@ module Eapi
 
     def run_validate_element_with
       if multiple && validate_element_with
-        validates_each field do |record, attr, value|
+        klass.send :validates_each, field do |record, attr, value|
           if value.respond_to?(:each)
             value.each do |v|
               validate_element_with.call(record, attr, v)
@@ -37,12 +37,12 @@ module Eapi
       end
     end
 
-    def run_validate_type_element
-      if multiple && type_element
-        validates_each field do |record, attr, value|
+    def run_validate_element_type
+      if multiple && element_type
+        klass.send :validates_each, field do |record, attr, value|
           if value.respond_to?(:each)
             value.each do |v|
-              record.errors.add(attr, "element must be a #{type}") unless v.kind_of?(type)
+              record.errors.add(attr, "element must be a #{element_type}") unless v.kind_of?(element_type)
             end
           end
         end
@@ -98,8 +98,8 @@ module Eapi
       definition.fetch(:validate_with, nil)
     end
 
-    def type_element
-      definition.fetch(:type_element, nil)
+    def element_type
+      definition.fetch(:element_type, nil)
     end
 
     def type

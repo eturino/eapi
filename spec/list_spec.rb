@@ -84,8 +84,40 @@ RSpec.describe Eapi do
       end
     end
 
-    it 'validate elements' do
-      skip 'test TBD'
+    describe 'element validation' do
+      class MyTestClassValElements
+        include Eapi::Common
+        property :something, multiple: true, element_type: Hash
+        property :other, multiple: true, validate_element_with: ->(record, attr, value) do
+          record.errors.add(attr, "element must pass my custom validation") unless value == :valid_val
+        end
+      end
+
+      describe 'using `type_element` property in definition' do
+        it 'will validate the type of all the elements in the list' do
+          eapi = MyTestClassValElements.new
+          eapi.add_something 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Something element must be a Hash"]
+          expect(eapi.errors.messages).to eq({something: ["element must be a Hash"]})
+
+          eapi.something [{a: :b}]
+          expect(eapi).to be_valid
+        end
+      end
+
+      describe 'using `validate_element_with` property in definition' do
+        it 'will run that custom validation for all the elements in the list' do
+          eapi = MyTestClassValElements.new
+          eapi.add_other 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Other element must pass my custom validation"]
+          expect(eapi.errors.messages).to eq({other: ["element must pass my custom validation"]})
+
+          eapi.other [:valid_val]
+          expect(eapi).to be_valid
+        end
+      end
     end
   end
 
