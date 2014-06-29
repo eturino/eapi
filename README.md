@@ -156,10 +156,19 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
-### List properties
+### Property definition
+TODO intro
+
+#### Type
 TODO Doc
 
-### validations
+#### required
+TODO Doc
+
+#### Custom validations
+TODO Doc
+
+#### List properties
 TODO Doc
 
 ### to_h
