@@ -170,22 +170,28 @@ res.equal? x # => true
 
 All Eapi classes respond to `to_h` and return a hash, as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to a simple hash structure.
  
-By default, each property will be converted into a simple element. This means that
-  
+#### Methods involved
+
 Inside, `to_h` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `create_hash`.
 
-The `create_hash` method will create a hash with the properties as keys. Each value will be converted in the same way.
+The `create_hash` method will create a hash with the properties as keys. Each value will be "converted".
 
-If a value is an Array or a Set, `to_a` will be invoked and all values will be converted in the same way.
+#### Values conversion
+
+By default, each property will be converted into a simple element (Array, Hash, or simple value).  
+
+If a value is an Array or a Set, `to_a` will be invoked and all values will be "converted" in the same way.
 
 If a value respond to `to_h`, it will be called. That way, if the value of a property (or an element of an Array) is an Eapi object, it will be validated and converted into a simple hash structure.
 
 important: *any nil value will be omitted* in the final hash.
 
-example:
+#### Example
+
+To demonstrate this behaviour we'll have an Eapi enabled class `ExampleEapi` and another `ComplexValue` class that responds to `to_h`. We'll set into the `ExampleEapi` object complex properties to demonstrate the conversion into a simple structure.
 
 ```ruby
-class MyTestObjectComplex
+class ComplexValue
   def to_h
     {
       a: Set.new(['hello', 'world', MyTestObject.new])
@@ -193,7 +199,7 @@ class MyTestObjectComplex
   end
 end
 
-class MyTestClassToH
+class ExampleEapi
   include Eapi::Common
 
   property :something, required: true
@@ -208,9 +214,7 @@ list = Set.new [
                  nil
                ]
 
-other = MyTestObjectComplex.new
-
-eapi = MyTestClassToH.new something: list, other: other
+eapi = ExampleEapi.new something: list, other: ComplexValue.new
 eapi.to_h # => 
 # {
 #   something: [
