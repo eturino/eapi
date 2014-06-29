@@ -520,6 +520,8 @@ obj.is_a_super_duper_thing? # => false
 
 You can add the functionality of Eapi to your own library module, and use it instead of `Eapi::Common`.
 
+Method-call-initialise shortcut can ignore the base name:
+
 ```ruby
 module MyExtension
   extend Eapi
@@ -527,11 +529,26 @@ end
 
 class TestKlass
   include MyExtension::Common
-
   property :something
 end
 
 obj = MyExtension.test_klass something: 1
+obj.something # => 1
+
+
+# if the class is in the same module, it can be omitted when using the object creation shortcut
+
+module MyExtension
+  class TestKlassInside
+    include MyExtension::Common
+    property :something
+  end
+end
+
+obj = MyExtension.my_extension_test_klass_inside something: 1
+obj.something # => 1
+
+obj = MyExtension.test_klass_inside something: 1
 obj.something # => 1
 ```
 
@@ -541,8 +558,7 @@ As it works now, the children of your extension will be also children of `Eapi`,
 
 ## TODO
 
-1. Method-call-initialise shortcut to be able to ignore 'eapi_' in the function name and still recognise classes within that module.
-2. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
+1. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
 
 ## Contributing
 
