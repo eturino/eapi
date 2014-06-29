@@ -516,11 +516,33 @@ obj.is_an_one_thing? # => true
 obj.is_a_super_duper_thing? # => false
 ```
 
+### Use in your own library
+
+You can add the functionality of Eapi to your own library module, and use it instead of `Eapi::Common`.
+
+```ruby
+module MyExtension
+  extend Eapi
+end
+
+class TestKlass
+  include MyExtension::Common
+
+  property :something
+end
+
+obj = MyExtension.test_klass something: 1
+obj.something # => 1
+```
+
+### important note:
+
+As it works now, the children of your extension will be also children of `Eapi`, so calling `Eapi.your_klass` and `YourExtension.your_klass` will do the same.
+
 ## TODO
 
 1. Method-call-initialise shortcut to be able to ignore 'eapi_' in the function name and still recognise classes within that module.
-2. Ability (with tests) to have another module that extend Eapi work as base for method-call-initialise shortcut. Also see (1)
-3. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
+2. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
 
 ## Contributing
 

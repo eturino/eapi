@@ -1,11 +1,22 @@
 module Eapi
   module Common
-    extend ActiveSupport::Concern
-    included do |klass|
+    def self.add_features(klass)
       Eapi::Children.append klass
       klass.send :include, ActiveModel::Validations
       klass.send :include, Eapi::Methods::Properties::InstanceMethods
       klass.send :include, Eapi::Methods::Types::InstanceMethods
+
+      klass.send :extend, ClassMethods
+    end
+
+    def self.extended(mod)
+      def mod.included(klass)
+        Eapi::Common.add_features klass
+      end
+    end
+
+    def self.included(klass)
+      Eapi::Common.add_features klass
     end
 
     def initialize(** properties)

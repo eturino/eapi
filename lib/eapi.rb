@@ -13,12 +13,24 @@ require 'eapi/common'
 
 
 module Eapi
-  def self.method_missing(method, *args, &block)
-    klass = Eapi::Children.get(method)
-    if klass
-      klass.new *args, &block
-    else
-      super
+  def self.add_method_missing(klass)
+    def klass.method_missing(method, *args, &block)
+      klass = Eapi::Children.get(method)
+      if klass
+        klass.new *args, &block
+      else
+        super
+      end
     end
+  end
+
+  add_method_missing self
+
+  def self.extended(mod)
+    mod.class_eval <<-CODE
+      Common = Eapi::Common
+      Children = Eapi::Children
+    CODE
+    Eapi.add_method_missing mod
   end
 end
