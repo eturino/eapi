@@ -53,19 +53,11 @@ module Eapi
         def self.included(klass)
           klass.send :include, IsAnOtherTypeMethods
         end
-
-        def self.extended(klass)
-          klass.send :extend, IsAnOtherTypeMethods
-        end
       end
 
       module ClassMethods
         def self.included(klass)
           klass.send :include, IsAnOtherTypeMethods
-        end
-
-        def self.extended(klass)
-          klass.send :extend, IsAnOtherTypeMethods
         end
 
         def is?(type)

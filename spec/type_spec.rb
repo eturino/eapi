@@ -64,6 +64,10 @@ RSpec.describe Eapi do
         expect(obj).to be_is_an_one_thing
         expect(obj).to be_is_an_other_thing
       end
+      
+      it 'method_missing still works' do
+        expect { MyTestTypeKlass.new.some_other_method? }.to raise_exception(NoMethodError)
+      end
     end
 
     describe '`.is_a_specific_type?` and `.is_an_other_type?`' do
@@ -72,6 +76,10 @@ RSpec.describe Eapi do
         expect(MyTestTypeKlass).not_to be_is_a_not_you
         expect(MyTestTypeKlass).to be_is_an_one_thing
         expect(MyTestTypeKlass).to be_is_an_other_thing
+      end
+
+      it 'method_missing still works' do
+        expect { MyTestTypeKlass.some_other_method? }.to raise_exception(NoMethodError)
       end
     end
   end
