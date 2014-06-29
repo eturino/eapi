@@ -55,11 +55,13 @@ x = MyTestKlass.new something: 1
 x.something # => 1
 ```
 
-### Calling methods in Eapi to get the  
+### Object creation shortcut: calling methods in Eapi
 
 Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
 
-To show this feature we'll use the 2 example classes that are used in the actual test rspec.
+The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search.new(name: 'Paco')`. We can also use `Eapi.Esr_Search(...)` and other combinations.
+
+To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
 
 ```ruby
     class MyTestKlassOutside
