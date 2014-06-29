@@ -55,7 +55,45 @@ x = MyTestKlass.new something: 1
 x.something # => 1
 ```
 
+### Calling methods in Eapi to get the  
 
+Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
+
+To show this feature we'll use the 2 example classes that are used in the actual test rspec.
+
+```ruby
+    class MyTestKlassOutside
+      include Eapi::Common
+
+      property :something
+    end
+
+    module Somewhere
+      class TestKlassInModule
+        include Eapi::Common
+
+        property :something
+      end
+    end
+```
+
+As shown by rspec run:
+
+```
+    initialise using method calls to Eapi
+      Eapi.MyTestKlassOutside(...)
+        calls MyTestKlassOutside.new
+      Eapi.my_test_klass_outside(...)
+        calls MyTestKlassOutside.new
+      Eapi.Somewhere__TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere__test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.Somewhere_TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere_test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+```
 
 
 

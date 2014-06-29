@@ -9,6 +9,14 @@ RSpec.describe Eapi do
       property :something
     end
 
+    module Somewhere
+      class TestKlassInModule
+        include Eapi::Common
+
+        property :something
+      end
+    end
+
     describe 'Eapi::Children' do
       describe '#list' do
         it 'returns the list of Eapi enabled classes' do
@@ -36,11 +44,22 @@ RSpec.describe Eapi do
       end
     end
 
-    describe 'Eapi.MyTestKlassOutside(...)' do
-      it 'calls MyTestKlassOutside.new' do
-        eapi = Eapi.MyTestKlassOutside(something: :hey)
-        expect(eapi).to be_a MyTestKlassOutside
-        expect(eapi.something).to eq :hey
+    describe 'initialise using method calls to Eapi', :focus do
+      [
+        [:MyTestKlassOutside, MyTestKlassOutside],
+        [:my_test_klass_outside, MyTestKlassOutside],
+        [:Somewhere__TestKlassInModule, Somewhere::TestKlassInModule],
+        [:somewhere__test_klass_in_module, Somewhere::TestKlassInModule],
+        [:Somewhere_TestKlassInModule, Somewhere::TestKlassInModule],
+        [:somewhere_test_klass_in_module, Somewhere::TestKlassInModule],
+      ].each do |(meth, klass)|
+        describe "Eapi.#{meth}(...)" do
+          it "calls #{klass}.new" do
+            eapi = Eapi.send meth, something: :hey
+            expect(eapi).to be_a klass
+            expect(eapi.something).to eq :hey
+          end
+        end
       end
     end
   end
