@@ -1,6 +1,5 @@
 module Eapi
   module Methods
-
     module Types
       def self.type_question_method(method)
         ms = method.to_s

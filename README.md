@@ -22,6 +22,16 @@ Or install it yourself as:
 
     $ gem install eapi
 
+## Dependencies
+
+This gem uses ActiveSupport (version 4) and also the ActiveModel Validations (version 4)
+
+Extracted from the gemspec:
+```
+spec.add_dependency 'activesupport', '~> 4'
+spec.add_dependency 'activemodel', '~> 4'
+```
+
 ## Usage
 
 TODO: Write usage instructions here
@@ -156,22 +166,86 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
-### Property definition
-TODO intro
+### Convert to hashes: `to_h` and `create_hash`
 
-#### Type
-TODO Doc
+All Eapi classes respond to `to_h` and return a hash, as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to a simple hash structure.
+ 
+By default, each property will be converted into a simple element. This means that
+  
+Inside, `to_h` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `create_hash`.
+
+The `create_hash` method will create a hash with the properties as keys. Each value will be converted in the same way.
+
+If a value is an Array or a Set, `to_a` will be invoked and all values will be converted in the same way.
+
+If a value respond to `to_h`, it will be called. That way, if the value of a property (or an element of an Array) is an Eapi object, it will be validated and converted into a simple hash structure.
+
+important: *any nil value will be omitted* in the final hash.
+
+example:
+
+```ruby
+class MyTestObjectComplex
+  def to_h
+    {
+      a: Set.new(['hello', 'world', MyTestObject.new])
+    }
+  end
+end
+
+class MyTestClassToH
+  include Eapi::Common
+
+  property :something, required: true
+  property :other
+end
+
+# TESTING #to_h
+
+list = Set.new [
+                 OpenStruct.new(a: 1, 'b' => 2),
+                 {c: 3, 'd' => 4},
+                 nil
+               ]
+
+other = MyTestObjectComplex.new
+
+eapi = MyTestClassToH.new something: list, other: other
+eapi.to_h # => 
+# {
+#   something: [
+#                {a: 1, b: 2},
+#                {c: 3, d: 4},
+#              ],
+# 
+#   other:     {
+#                a: [
+#                     'hello',
+#                     'world',
+#                     {a: 'hello'}
+#                   ]
+#              }
+# }
+```
+
+### Property definition
+
+When defining the property, we can specify some options to specify what values are expected in that property. This serves for validation and automatic initialisation.
 
 #### required
+
+A required property will 
+
+#### Type
+
 TODO Doc
 
 #### Custom validations
+
 TODO Doc
 
 #### List properties
-TODO Doc
 
-### to_h
 TODO Doc
 
 
