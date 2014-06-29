@@ -276,6 +276,21 @@ eapi.errors.full_messages # => ["Something must be a Hash"]
 eapi.errors.messages # => {something: ["must be a Hash"]}
 ```
 
+Also, if a type is specified, then a `init_property_name` method is created that will set a new object of the given type in the property.
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, type: Hash
+end
+
+eapi = TestKlass.new
+eapi.something # => nil
+eapi.init_something
+eapi.something # => {}
+```
+
 #### Custom validation with `validate_with` option
 
 A more specific validation can be used using `validate_with`, that works the same way as `ActiveModel::Validations`. 
@@ -302,23 +317,87 @@ eapi.errors.messages # => {something: ["must pass my custom validation"]}
 All other ActiveModel::Validations can be used:
 
 ```ruby
-class MyTestClassVal5
+class TestKlass
   include Eapi::Common
 
   property :something
   validates :something, numericality: true
-
 end
 
-eapi = MyTestClassVal5.new something: 'something'
+eapi = TestKlass.new something: 'something'
 eapi.valid? # => false
 eapi.errors.full_messages # => ["Something is not a number"]
 eapi.errors.messages # => {something: ["must is not a number"]}
 ```
 
-#### List properties
+### List properties
 
-TODO Doc
+a property can be defined as a multiple property. This will affect the methods defined in the class (it will create a fluent 'adder' method `add_property_name`), and also the automatic initialisation.
+
+#### Define property as multiple with `multiple` option
+
+A property marked as `multiple` will be initialised with an empty array. If no type is specified then it will use Array as a type, only for purposes of the `init_property_name` method.
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, multiple: true
+end
+```
+
+#### Adder method `add_property_name`
+
+For a property marked as multiple, an extra fluent method called `add_property_name` will be created. This work very similar to the fluent setter `set_property_name` but inside it will append the value (using the shovel method `<<`) instead of setting it.
+
+If the property is `nil` when `add_property_name` is called, then it will call `init_property_name` before. 
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, multiple: true
+end
+
+x = TestKlass.new
+x.add_something(1).add_something(2)
+x.something # => [1, 2]
+```
+
+#### Implicit `multiple` depending on Type
+
+Even without `multiple` option specified, if the `type` option is: 
+* `Array`
+* `Set`
+* a class that responds to `is_multiple?` with true
+
+then the property is marked as multiple.
+ 
+example: (all `TestKlass` properties are marked as multiple)
+```ruby
+class MyCustomList
+  def self.is_multiple?
+    true
+  end
+  
+  def <<(val)
+    @list |= []
+    @list << val
+  end
+end
+
+class TestKlass
+  include Eapi::Common
+
+  property :p1, multiple: true
+  property :p2, type: Array
+  property :p3, type: Set
+  property :p4, type: MyCustomList
+end
+
+x = TestKlass.new
+x.add_p1(1).add_p2(2).add_p3(3).add_p4(4)
+```
 
 
 ## Contributing
