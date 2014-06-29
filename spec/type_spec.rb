@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 RSpec.describe Eapi do
+  class SomeType
+  end
 
   context 'type check' do
-    class OtherType
-    end
-
     class MyTestTypeKlass
       include Eapi::Common
-
-      is :one_thing, :other_thing, OtherType
+      is :one_thing, :other_thing, SomeType
     end
 
     describe '#is? and .is?' do
@@ -30,8 +28,8 @@ RSpec.describe Eapi do
         expect(MyTestTypeKlass).not_to be_is :not_you
         expect(MyTestTypeKlass).to be_is :one_thing
         expect(MyTestTypeKlass).to be_is :other_thing
-        expect(MyTestTypeKlass).to be_is OtherType
-        expect(MyTestTypeKlass).to be_is :OtherType
+        expect(MyTestTypeKlass).to be_is SomeType
+        expect(MyTestTypeKlass).to be_is :SomeType
       end
     end
 
@@ -51,8 +49,8 @@ RSpec.describe Eapi do
         expect(obj).not_to be_is :not_you
         expect(obj).to be_is :one_thing
         expect(obj).to be_is :other_thing
-        expect(obj).to be_is OtherType
-        expect(obj).to be_is :OtherType
+        expect(obj).to be_is SomeType
+        expect(obj).to be_is :SomeType
       end
     end
 
@@ -81,6 +79,22 @@ RSpec.describe Eapi do
       it 'method_missing still works' do
         expect { MyTestTypeKlass.some_other_method? }.to raise_exception(NoMethodError)
       end
+    end
+  end
+
+  context 'using symbol as type' do
+    class MyTestTypeKlassSymbol
+      include Eapi::Common
+      is :SomeType
+    end
+
+    it 'works the same' do
+      expect(MyTestTypeKlassSymbol).to be_is SomeType
+      expect(MyTestTypeKlassSymbol).to be_is :SomeType
+
+      obj = MyTestTypeKlassSymbol.new
+      expect(obj).to be_is SomeType
+      expect(obj).to be_is :SomeType
     end
   end
 end

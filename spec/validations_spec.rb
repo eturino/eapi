@@ -90,27 +90,81 @@ RSpec.describe Eapi do
         end
       end
 
-      class MyTestClassValType
-        include Eapi::Common
+      describe 'using a class as type' do
+        class MyTestClassValType
+          include Eapi::Common
 
-        property :something, type: Hash
+          property :something, type: Hash
+        end
+
+        it 'invalid if value is not of that type' do
+          eapi = MyTestClassValType.new something: 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
+          expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
+        end
+
+        it 'valid if value is of the given type' do
+          eapi = MyTestClassValType.new something: {}
+          expect(eapi).to be_valid
+        end
+
+        it 'valid if value is not an instance of the given type but responds true to `.is?(type)`' do
+          eapi = MyTestClassValType.new something: SimilarToHash.new
+          expect(eapi).to be_valid
+        end
       end
 
-      it 'invalid if value is not of that type' do
-        eapi = MyTestClassValType.new something: 1
-        expect(eapi).not_to be_valid
-        expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
-        expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
+
+      describe 'using a symbol as type' do
+        class MyTestClassValTypeSymbol
+          include Eapi::Common
+
+          property :something, type: :Hash
+        end
+
+        it 'invalid if value is not of that type' do
+          eapi = MyTestClassValTypeSymbol.new something: 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
+          expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
+        end
+
+        it 'valid if value is of the given type' do
+          eapi = MyTestClassValTypeSymbol.new something: {}
+          expect(eapi).to be_valid
+        end
+
+        it 'valid if value is not an instance of the given type but responds true to `.is?(type)`' do
+          eapi = MyTestClassValTypeSymbol.new something: SimilarToHash.new
+          expect(eapi).to be_valid
+        end
       end
 
-      it 'valid if value is of the given type' do
-        eapi = MyTestClassValType.new something: {}
-        expect(eapi).to be_valid
-      end
 
-      it 'valid if value is not an instance of the given type but responds true to `.is?(type)`' do
-        eapi = MyTestClassValType.new something: SimilarToHash.new
-        expect(eapi).to be_valid
+      describe 'using a string as type' do
+        class MyTestClassValTypeString
+          include Eapi::Common
+
+          property :something, type: 'Hash'
+        end
+
+        it 'invalid if value is not of that type' do
+          eapi = MyTestClassValTypeString.new something: 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Something must be a Hash"]
+          expect(eapi.errors.messages).to eq({something: ["must be a Hash"]})
+        end
+
+        it 'valid if value is of the given type' do
+          eapi = MyTestClassValTypeString.new something: {}
+          expect(eapi).to be_valid
+        end
+
+        it 'valid if value is not an instance of the given type but responds true to `.is?(type)`' do
+          eapi = MyTestClassValTypeString.new something: SimilarToHash.new
+          expect(eapi).to be_valid
+        end
       end
     end
   end

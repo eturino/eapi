@@ -294,6 +294,21 @@ eapi.init_something
 eapi.something # => {}
 ```
 
+A symbol or a string can also be specified as class name in `type` option, and it will be loaded on type check. This can be helpful to avoid loading problems. Using the same example as before:
+
+```ruby
+class TestKlass
+  include Eapi::Common
+
+  property :something, type: "Hash"
+end
+
+eapi = TestKlass.new
+eapi.something # => nil
+eapi.init_something
+eapi.something # => {}
+```
+
 To trigger the error, the value must not be an instance of the given Type, and also must not respond `true` to `value.is?(type)`
 
 #### Custom validation with `validate_with` option
