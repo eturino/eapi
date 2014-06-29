@@ -470,6 +470,10 @@ eapi.valid? # => true
 
 An Eapi class can poses as other types, for purposes of `type` checking in a property definition. We use the class method `is` for this.
 
+the `is?` method is also available as an instance method. 
+
+Eapi also creates specific instance and class methods like `is_a_some_type?` or `is_an_another_type?`.
+
 example:
 
 ```ruby
@@ -502,6 +506,15 @@ TestKlass.is? :SomethingElse # => false
 obj = TestKlass.new
 obj.is? TestKlass # => true
 obj.is? :one_thing # => true
+
+# specific type test methods
+TestKlass.is_a_test_klass? # => true
+TestKlass.is_an_one_thing? # => true
+TestKlass.is_a_super_duper_thing? # => false
+
+obj.is_a_test_klass? # => true
+obj.is_an_one_thing? # => true
+obj.is_a_super_duper_thing? # => false
 ```
 
 ## Contributing

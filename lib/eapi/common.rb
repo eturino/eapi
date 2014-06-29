@@ -2,10 +2,10 @@ module Eapi
   module Common
     extend ActiveSupport::Concern
     included do |klass|
+      Eapi::Children.append klass
       klass.send :include, ActiveModel::Validations
       klass.send :include, Eapi::Methods::Properties::InstanceMethods
       klass.send :include, Eapi::Methods::Types::InstanceMethods
-      Eapi::Children.append klass
     end
 
     def initialize(** properties)
@@ -13,15 +13,6 @@ module Eapi
         normal_setter = Eapi::Methods::Names.setter k
         #TODO: what to do with unrecognised properties
         send normal_setter, v if respond_to? normal_setter
-      end
-    end
-
-    def method_missing(method, *args)
-      catch(:response) do
-        Eapi::Methods::Types.check_asking_type method, self
-
-        # if nothing catch -> continue super
-        super
       end
     end
 

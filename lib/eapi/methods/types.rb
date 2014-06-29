@@ -3,8 +3,11 @@ module Eapi
     module Types
       def self.type_question_method(method)
         ms = method.to_s
-        if ms.start_with?('is_a_') && ms.end_with?('?')
+        return false unless ms.end_with?('?')
+        if ms.start_with?('is_a_')
           ms.sub('is_a_', '').sub('?', '')
+        elsif ms.start_with?('is_an_')
+          ms.sub('is_an_', '').sub('?', '')
         else
           nil
         end
@@ -13,26 +16,65 @@ module Eapi
       def self.check_asking_type(method, obj)
         type = Types.type_question_method method
         if type
-          throw :response, obj.class.is?(type)
+          obj.is?(type)
+        else
+          nil
         end
       end
 
       def self.to_type_sym(x)
-        x.to_s.to_sym
+        x.to_s.underscore.to_sym
+      end
+
+      module IsAnOtherTypeMethods
+        def respond_to_missing?(method, include_all)
+          if Types.type_question_method(method).present?
+            true
+          else
+            super
+          end
+        end
+
+        def method_missing(method, *args, &block)
+          resp = Types.check_asking_type method, self
+          if resp.nil?
+            super
+          else
+            resp
+          end
+        end
       end
 
       module InstanceMethods
         def is?(type)
           self.class.is?(type)
         end
+
+        def self.included(klass)
+          klass.send :include, IsAnOtherTypeMethods
+        end
+
+        def self.extended(klass)
+          klass.send :extend, IsAnOtherTypeMethods
+        end
       end
 
-
       module ClassMethods
+        def self.included(klass)
+          klass.send :include, IsAnOtherTypeMethods
+        end
+
+        def self.extended(klass)
+          klass.send :extend, IsAnOtherTypeMethods
+        end
+
         def is?(type)
-          self == type ||
-            Types.to_type_sym(self) == Types.to_type_sym(type) ||
-            @i_am_a && @i_am_a.include?(type.to_s.to_sym)
+          type_sym = Types.to_type_sym type
+
+          return true if self == type || Types.to_type_sym(self) == type_sym
+          return false unless @i_am_a.present?
+
+          !!@i_am_a.include?(type_sym) # force it to be a bool
         end
 
         def is(*types)
