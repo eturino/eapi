@@ -55,6 +55,65 @@ x = MyTestKlass.new something: 1
 x.something # => 1
 ```
 
+### Defining properties
+
+We define properties in our class with the instruction `property` as shown:
+
+```ruby
+class MyTestKlass
+  include Eapi::Common
+
+  property :one
+  property :two
+end
+```
+#### Setting proeprties on object creation
+We can then assign the properties on object creation:
+```ruby
+x = MyTestKlass.new one: 1, two: 2
+```
+#### Getters
+
+A getter method will be created for each property
+```ruby
+x = MyTestKlass.new one: 1, two: 2
+x.one # => 1
+x.two # => 2
+```
+
+#### Setters
+
+Also, a setter will be created for each property
+```ruby
+x = MyTestKlass.new one: 1, two: 2
+x.one = :other
+x.one # => :other
+```
+
+#### Fluent setters (for method chaining)
+Besides the normal setter, a fluent setter (`set_my_prop`) will be created for each property. `self` is returned on this setters, enabling Method Chaining.
+
+```ruby
+x = MyTestKlass.new one: 1, two: 2
+res = x.set_one(:other)
+x.one # => :other
+res.equal? x # => true
+
+x.set_one(:hey).set_two(:you)
+x.one # => :hey
+x.two # => :you
+```
+
+#### getter method as fluent setter
+
+The getter method also works as fluent setter. If we pass an argument to it, it will call the fluent setter
+```ruby
+x = MyTestKlass.new
+res = x.one :fluent
+x.one # => :fluent
+res.equal? x # => true
+```
+
 ### Object creation shortcut: calling methods in Eapi
 
 Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
@@ -64,19 +123,19 @@ The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search
 To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
 
 ```ruby
-    class MyTestKlassOutside
-      include Eapi::Common
+class MyTestKlassOutside
+  include Eapi::Common
 
-      property :something
-    end
+  property :something
+end
 
-    module Somewhere
-      class TestKlassInModule
-        include Eapi::Common
+module Somewhere
+  class TestKlassInModule
+    include Eapi::Common
 
-        property :something
-      end
-    end
+    property :something
+  end
+end
 ```
 
 As shown by rspec run:
