@@ -29,10 +29,11 @@ Works with ruby 2. Tested with MRI 2.1.1 and 2.0.0
 
 ### Gem dependencies
 
-This gem uses ActiveSupport (version 4) and also the ActiveModel Validations (version 4)
+This gem uses ActiveSupport (version 4) and also the ActiveModel Validations (version 4). It also uses fluent_accessors gem.
 
 Extracted from the gemspec:
 ```
+spec.add_dependency 'fluent_accessors', '~> 1'
 spec.add_dependency 'activesupport', '~> 4'
 spec.add_dependency 'activemodel', '~> 4'
 ```

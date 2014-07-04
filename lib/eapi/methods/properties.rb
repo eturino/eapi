@@ -3,6 +3,15 @@ module Eapi
 
     module Properties
       module InstanceMethods
+
+        def _properties
+          self.class.properties
+        end
+
+        def converted_value_for(prop)
+          Eapi::ValueConverter.convert_value(get(prop))
+        end
+
         def get(field)
           getter = Eapi::Methods::Names.getter field
           send(getter)
