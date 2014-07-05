@@ -11,6 +11,7 @@ require 'eapi/type_checker'
 require 'eapi/methods'
 require 'eapi/value_converter'
 require 'eapi/common'
+require 'eapi/list'
 
 
 module Eapi
