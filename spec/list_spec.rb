@@ -34,14 +34,18 @@ RSpec.describe Eapi do
         not_same:      [:pry, :to_s, :inspect, :to_a, :to_h, :hash, :eql?, :to_ary, :pretty_print, :pretty_print_cycle],
         block:         [:cycle, :each, :each_index, :reverse_each],
         special:       [:[], :[]=, :<<, :==],
-        other_array:   [:concat, :+, :-, :&, :|, :replace],
-        at:            [:at, :fetch],
-        index:         [:index, :find_index, :rindex],
+        other_array:   [:concat, :+, :-, :&, :|, :replace, :<=>],
+        at:            [:at, :fetch, :delete_at, :from, :to],
+        index:         [:index, :find_index, :rindex, :delete],
         push:          [:push, :unshift, :append, :prepend],
         insert:        [:insert],
         map:           [:map, :map!, :collect!, :collect],
-        select!:       [:keep_if, :select!, :reject!, :select, :delete_if, :reject, :drop_while, :take_while],
-        by_number:        [:in_groups_of, :in_groups, :drop, :take, :slice, :slice!]
+        select!:       [:keep_if, :select!, :reject!, :select, :delete_if, :reject, :drop_while, :take_while, :bsearch],
+        by_number:     [:in_groups_of, :in_groups, :drop, :take, :include?, :*, :to_query, :fill],
+        slice:         [:slice, :slice!],
+        sort_by:       [:sort_by!],
+        sample:        [:sample],
+        shuffle:       [:shuffle, :shuffle!],
       }
 
       SUPPORTED_METHODS = [].public_methods(false) - KNOWN_METHODS[:not_supported]
@@ -143,6 +147,29 @@ RSpec.describe Eapi do
             end
           end
 
+          describe "method sample" do
+            it do
+              expect(subject._list).to include(subject.sample)
+            end
+          end
+
+          describe "method shuffle" do
+            it do
+              list_before_shuffle = subject._list.dup
+              list_after_shuffle  = subject.shuffle._list.dup
+              expect(list_before_shuffle.sort).to eq list_after_shuffle.sort
+            end
+          end
+
+          describe "method shuffle!" do
+            it do
+              list_before_shuffle = subject._list.dup
+              subject.shuffle!
+              list_after_shuffle = subject._list.dup
+              expect(list_before_shuffle.sort).to eq list_after_shuffle.sort
+            end
+          end
+
 
           KNOWN_METHODS[:map].each do |m|
             describe "method #{m}" do
@@ -209,6 +236,61 @@ RSpec.describe Eapi do
                 array_result
                 expect(subject).to eq array
               end
+            end
+          end
+
+
+          KNOWN_METHODS[:slice].each do |m|
+            describe "method #{m}" do
+              let(:subject_result) do
+                subject.public_send(m, 2)
+              end
+
+              let(:array_result) do
+                array.public_send(m, 2)
+              end
+
+              it do
+                expect(subject_result).to eq array_result
+              end
+
+              it do
+                subject_result
+                array_result
+                expect(subject).to eq array
+              end
+            end
+          end
+
+          describe "method sort_by!" do
+            let(:subject_enumerator) do
+              subject.sort_by!
+            end
+
+            let(:array_enumerator) do
+              array.sort_by!
+            end
+
+            let(:subject_with_block) do
+              subject.sort_by! { |x| -1 * x }
+            end
+
+            let(:array_with_block) do
+              array.sort_by! { |x| -1 * x }
+            end
+
+            it do
+              expect(subject_enumerator.to_a).to eq array_enumerator.to_a
+            end
+
+            it do
+              expect(subject_with_block.to_a).to eq array_with_block.to_a
+            end
+
+            it do
+              subject_with_block
+              array_with_block
+              expect(subject).to eq array
             end
           end
 
