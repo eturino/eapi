@@ -4,7 +4,7 @@ RSpec.describe Eapi do
 
   context 'list elements' do
     class MyTestClassValMult
-      include Eapi::Common
+      include Eapi::Item
 
       property :something, multiple: true
     end
@@ -24,7 +24,7 @@ RSpec.describe Eapi do
     end
 
     class MyTestClassValMultImpl
-      include Eapi::Common
+      include Eapi::Item
 
       property :something, type: Set
     end
@@ -45,13 +45,13 @@ RSpec.describe Eapi do
     end
 
     class MyTestClassValMultImpl2
-      include Eapi::Common
+      include Eapi::Item
 
       property :something, type: MyMultiple
     end
 
-    class MyMultipleEapi
-      include Eapi::Multiple
+    class MyMultipleValueTestKlass
+      include Eapi::MultipleValue
 
       def <<(x)
         @elements ||= []
@@ -64,9 +64,9 @@ RSpec.describe Eapi do
     end
 
     class MyTestClassValMultImpl3
-      include Eapi::Common
+      include Eapi::Item
 
-      property :something, type: MyMultipleEapi
+      property :something, type: MyMultipleValueTestKlass
     end
 
     it 'if type is Array or Set, or responds true to is_multiple?, it is multiple implicitly + uses that class to initialize the property when adding' do
@@ -74,7 +74,7 @@ RSpec.describe Eapi do
         [MyTestClassValMult, Array],
         [MyTestClassValMultImpl, Set],
         [MyTestClassValMultImpl2, MyMultiple],
-        [MyTestClassValMultImpl3, MyMultipleEapi],
+        [MyTestClassValMultImpl3, MyMultipleValueTestKlass],
       ].each do |(eapi_class, type_class)|
         eapi = eapi_class.new
         res  = eapi.add_something :a
@@ -86,7 +86,7 @@ RSpec.describe Eapi do
 
     describe 'element validation' do
       class MyTestClassValElements
-        include Eapi::Common
+        include Eapi::Item
         property :something, multiple: true, element_type: Hash
         property :other, multiple: true, validate_element_with: ->(record, attr, value) do
           record.errors.add(attr, "element must pass my custom validation") unless value == :valid_val

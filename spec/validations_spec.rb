@@ -6,7 +6,7 @@ RSpec.describe Eapi do
     describe '#valid?' do
       it 'true if no validations' do
         class MyTestClassVal
-          include Eapi::Common
+          include Eapi::Item
 
           property :something
         end
@@ -17,7 +17,7 @@ RSpec.describe Eapi do
 
       it 'false if validations not met' do
         class MyTestClassVal2
-          include Eapi::Common
+          include Eapi::List
 
           property :something
 
@@ -33,7 +33,7 @@ RSpec.describe Eapi do
 
     it 'if required, same as validate presence' do
       class MyTestClassVal3
-        include Eapi::Common
+        include Eapi::List
 
         property :something, required: true
       end
@@ -46,7 +46,7 @@ RSpec.describe Eapi do
 
     it 'if validate_with: specified with a class, uses it to validate the property' do
       class MyTestClassVal4
-        include Eapi::Common
+        include Eapi::List
 
         property :something, validate_with: ->(record, attr, value) do
           record.errors.add(attr, "must pass my custom validation") unless value == :valid_val
@@ -65,7 +65,7 @@ RSpec.describe Eapi do
 
     it 'normal ActiveModel::Validations can be used' do
       class MyTestClassVal5
-        include Eapi::Common
+        include Eapi::List
 
         property :something
 
@@ -92,7 +92,7 @@ RSpec.describe Eapi do
 
       describe 'using a class as type' do
         class MyTestClassValType
-          include Eapi::Common
+          include Eapi::List
 
           property :something, type: Hash
         end
@@ -118,7 +118,7 @@ RSpec.describe Eapi do
 
       describe 'using a symbol as type' do
         class MyTestClassValTypeSymbol
-          include Eapi::Common
+          include Eapi::List
 
           property :something, type: :Hash
         end
@@ -144,7 +144,7 @@ RSpec.describe Eapi do
 
       describe 'using a string as type' do
         class MyTestClassValTypeString
-          include Eapi::Common
+          include Eapi::List
 
           property :something, type: 'Hash'
         end

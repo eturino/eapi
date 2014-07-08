@@ -9,7 +9,11 @@ module Eapi
         end
 
         def converted_value_for(prop)
-          Eapi::ValueConverter.convert_value(get(prop))
+          convert_value get(prop)
+        end
+
+        def convert_value(value)
+          Eapi::ValueConverter.convert_value(value)
         end
 
         def get(field)

@@ -4,18 +4,19 @@ module Eapi
     include Enumerable
     extend Common
 
-    def _list
-      @_list ||= []
+    def render
+      validate!
+      create_array
     end
 
-    # ary.to_a     -> ary
-    #
-    # Returns +self+.
-    #
-    # If called on a subclass of Array, converts the receiver to an Array object.
-    def to_a
-      validate!
-      _list.to_a
+    alias_method :to_a, :render
+
+    def create_array
+      _list.map { |val| convert_value val }
+    end
+
+    def _list
+      @_list ||= []
     end
 
     def add(value)
@@ -23,10 +24,8 @@ module Eapi
       self
     end
 
-    def ==(other)
-      super ||
-        _list == other ||
-        (other.respond_to?(:_list) && _list == other._list)
+    def <=>(other)
+      (_list <=> other) || (other.respond_to?(:_list) && _list <=> other._list)
     end
 
     # From Array
@@ -49,13 +48,11 @@ module Eapi
         raise ArgumentError, 'must be either a List or respond to `to_a`'
       end
     end
+
     protected :initialize_copy
 
     delegate :frozen?, :[], :[]=, :at, :fetch, :first, :last, :<<, :push, :pop, :shift, :unshift, :insert, :length, :size, :empty?, :rindex, :join, :collect, :map, :select, :values_at, :delete, :delete_at, :delete_if, :reject, :include?, :count, :sample, :bsearch, :to_json_without_active_support_encoder, :slice, :slice!, :sort_by!, :shuffle, :shuffle!,
              to: :_list
-
-    # for Comparable
-    delegate :<=>, to: :_list
 
     # for Enumerable
     delegate :each, :each_index, to: :_list
@@ -94,7 +91,6 @@ module Eapi
         dup.tap { |n| n.initialize_copy(n._list.send m, *args, &block) }
       end
     end
-
 
 
     # transpose, assoc, rassoc , permutation, combination, repeated_permutation, repeated_combination, product, pack ?? => do not use the methods

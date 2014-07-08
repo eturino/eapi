@@ -26,6 +26,12 @@ RSpec.describe Eapi do
           expect(subject.to_a).to eq [:hey, :you]
         end
       end
+
+      context '#to_a' do
+        it 'executes validation' do
+
+        end
+      end
     end
 
     describe 'list methods' do

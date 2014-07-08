@@ -42,11 +42,11 @@ spec.add_dependency 'activemodel', '~> 4'
 
 ### including EAPI into your class
 
-Just include the module `Eapi::Common` into your class.
+Just include the module `Eapi::Item` into your class.
 
 ```ruby    
 class MyTestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something
 end
@@ -60,7 +60,7 @@ For now any unrecognised property in the hash will be ignored. This may change i
 
 ```ruby    
 class MyTestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something
 end
@@ -79,14 +79,14 @@ To show this feature and all the combinations for method names, we'll use the 2 
 
 ```ruby
 class MyTestKlassOutside
-  include Eapi::Common
+  include Eapi::Item
 
   property :something
 end
 
 module Somewhere
   class TestKlassInModule
-    include Eapi::Common
+    include Eapi::Item
 
     property :something
   end
@@ -117,7 +117,7 @@ We define properties in our class with the instruction `property` as shown:
 
 ```ruby
 class MyTestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :one
   property :two
@@ -170,13 +170,15 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
-### Convert to hashes: `to_h` and `create_hash`
+### Convert to hashes: `render`, `to_h` and `create_hash`
 
-All Eapi classes respond to `to_h` and return a hash, as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to a simple hash structure.
+All Eapi classes respond to `render` and return a hash (for `Item` classes) or an array (for `List` classes), as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to a simple hash structure.
+
+`Item` classes will invoke `render` when receiving `to_h`, while `List` classes will do the same when receiving `to_a`
  
 #### Methods involved
 
-Inside, `to_h` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `create_hash`.
+Inside, `render` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `create_hash`.
 
 The `create_hash` method will create a hash with the properties as keys. Each value will be "converted".
 
@@ -204,7 +206,7 @@ class ComplexValue
 end
 
 class ExampleEapi
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, required: true
   property :other
@@ -250,7 +252,7 @@ example:
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, required: true
 end
@@ -269,7 +271,7 @@ example:
  
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, type: Hash
 end
@@ -284,7 +286,7 @@ Also, if a type is specified, then a `init_property_name` method is created that
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, type: Hash
 end
@@ -299,7 +301,7 @@ A symbol or a string can also be specified as class name in `type` option, and i
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, type: "Hash"
 end
@@ -320,7 +322,7 @@ example:
  
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, validate_with: ->(record, attr, value) do
     record.errors.add(attr, "must pass my custom validation") unless value == :valid_val
@@ -339,7 +341,7 @@ All other ActiveModel::Validations can be used:
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something
   validates :something, numericality: true
@@ -361,7 +363,7 @@ You can see (but not edit) the definition of a property calling the `definition_
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, type: Hash, unrecognised_option: 1
 end
@@ -385,7 +387,7 @@ A property marked as `multiple` will be initialised with an empty array. If no t
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, multiple: true
 end
@@ -399,7 +401,7 @@ If the property is `nil` when `add_property_name` is called, then it will call `
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, multiple: true
 end
@@ -432,7 +434,7 @@ class MyCustomList
 end
 
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :p1, multiple: true
   property :p2, type: Array
@@ -454,7 +456,7 @@ We can also specify `validate_element_with` option, and it will act the same as 
 
 ```ruby
 class TestKlass
-  include Eapi::Common
+  include Eapi::Item
 
   property :something, multiple: true, element_type: Hash
   property :other, multiple: true, validate_element_with: ->(record, attr, value) do
@@ -493,7 +495,7 @@ example:
 
 ```ruby
 class SuperTestKlass
-  include Eapi::Common
+  include Eapi::Item
 end
  
 class TestKlass < SuperTestKlass

@@ -1,5 +1,5 @@
 module Eapi
-  module Multiple
+  module MultipleValue
     extend ActiveSupport::Concern
     included do
     end

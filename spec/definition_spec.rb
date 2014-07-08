@@ -4,7 +4,7 @@ RSpec.describe Eapi do
 
   context '#definition_for' do
     class MyTestKlassDefinition
-      include Eapi::Common
+      include Eapi::Item
 
       property :something, type: Hash, unrecognised_option: 1
     end

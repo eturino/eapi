@@ -8,14 +8,14 @@ RSpec.describe Eapi do
     end
 
     class MyExtensionExternalKlass
-      include MyExtension::Common
+      include MyExtension::Item
 
       property :something
     end
 
     module MyExtension
       class TestKlass
-        include MyExtension::Common
+        include MyExtension::Item
 
         property :something
       end

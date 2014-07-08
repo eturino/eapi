@@ -5,12 +5,13 @@ require 'active_model'
 require 'eapi/version'
 require 'eapi/errors'
 require 'eapi/children'
-require 'eapi/multiple'
+require 'eapi/multiple_value'
 require 'eapi/definition_runner'
 require 'eapi/type_checker'
 require 'eapi/methods'
 require 'eapi/value_converter'
 require 'eapi/common'
+require 'eapi/item'
 require 'eapi/list'
 
 
@@ -31,6 +32,8 @@ module Eapi
   def self.extended(mod)
     mod.class_eval <<-CODE
       Common = Eapi::Common
+      Item = Eapi::Item
+      List = Eapi::List
       Children = Eapi::Children
     CODE
     Eapi.add_method_missing mod

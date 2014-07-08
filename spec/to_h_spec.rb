@@ -4,7 +4,7 @@ RSpec.describe Eapi do
 
   context '#to_h' do
     class MyTestClassToH
-      include Eapi::Common
+      include Eapi::Item
 
       property :something, required: true
       property :other

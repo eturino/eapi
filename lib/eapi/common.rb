@@ -29,22 +29,8 @@ module Eapi
         end
       end
 
-      def to_h
-        validate!
-        create_hash
-      end
-
       def validate!
         raise Eapi::Errors::InvalidElementError, "errors: #{errors.full_messages}, self: #{self.inspect}" unless valid?
-      end
-
-      def create_hash
-        {}.tap do |hash|
-          _properties.each do |prop|
-            val        = converted_value_for(prop)
-            hash[prop] = val unless val.nil?
-          end
-        end
       end
     end
 

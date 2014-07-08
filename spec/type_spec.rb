@@ -6,7 +6,7 @@ RSpec.describe Eapi do
 
   context 'type check' do
     class MyTestTypeKlass
-      include Eapi::Common
+      include Eapi::Item
       is :one_thing, :other_thing, SomeType
     end
 
@@ -84,7 +84,7 @@ RSpec.describe Eapi do
 
   context 'using symbol as type' do
     class MyTestTypeKlassSymbol
-      include Eapi::Common
+      include Eapi::Item
       is :SomeType
     end
 
