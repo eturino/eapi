@@ -212,7 +212,7 @@ class ExampleEapi
   property :other
 end
 
-# TESTING `to_h`
+# TESTING `render`
 
 list = Set.new [
                  OpenStruct.new(a: 1, 'b' => 2),
@@ -221,7 +221,9 @@ list = Set.new [
                ]
 
 eapi = ExampleEapi.new something: list, other: ComplexValue.new
-eapi.to_h # => 
+
+# same as eapi.to_h
+eapi.render # => 
 # {
 #   something: [
 #                {a: 1, b: 2},

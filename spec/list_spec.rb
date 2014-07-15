@@ -334,5 +334,70 @@ RSpec.describe Eapi do
         end
       end
     end
+
+    describe 'list definition' do
+      class ListDefinitionTestKlass
+        include Eapi::List
+
+        elements required: true, type: String, unique: true
+      end
+
+      let(:definition) { {required: true, type: String, unique: true} }
+
+      subject { ListDefinitionTestKlass.new }
+
+      context '.is_multiple?' do
+        it { expect(subject.class).to be_is_multiple }
+      end
+
+      context '.definition_for_elements' do
+        it { expect(subject.class.definition_for_elements).to eq definition }
+      end
+
+      context 'required' do
+        it 'fails if empty' do
+          expect(subject).not_to be_valid
+          subject.add "Something"
+          expect(subject).to be_valid
+        end
+      end
+
+      context 'type' do
+        it 'fails if any element is not of valid type' do
+          subject.add "Something"
+          subject.add :is
+          subject.add 1
+          expect(subject).not_to be_valid
+          subject.clear
+          subject.add "Just Strings"
+          subject.add "Many Strings"
+          expect(subject).to be_valid
+        end
+      end
+
+      context 'unique' do
+        it 'fails if has any repeated elements' do
+          subject.add "Cramer"
+          subject.add "vs"
+          subject.add "Cramer"
+
+          expect(subject).not_to be_valid
+
+          msgs = {:_list => ["elements must be unique (repeated elements: {\"Cramer\"=>2})"]}
+          expect(subject.errors.messages).to eq msgs
+
+          subject.clear
+
+          subject.add "Cramer"
+          subject.add "vs"
+          subject.add "Other Guy"
+
+          expect(subject).to be_valid
+        end
+      end
+
+      context 'validate_with lambda'
+
+    end
   end
 end

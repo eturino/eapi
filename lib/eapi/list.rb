@@ -4,6 +4,32 @@ module Eapi
     include Enumerable
     extend Common
 
+    module ClassMethods
+      def is_multiple?
+        true
+      end
+    end
+
+    def self.add_features(klass)
+      Eapi::Common.add_features klass
+      klass.extend(ClassMethods)
+      klass.extend(Eapi::Methods::Properties::ListCLassMethods)
+    end
+
+    def self.extended(mod)
+      def mod.included(klass)
+        Eapi::List.add_features klass
+      end
+    end
+
+    def self.included(klass)
+      Eapi::List.add_features klass
+    end
+
+    def is_multiple?
+      true
+    end
+
     def render
       validate!
       create_array

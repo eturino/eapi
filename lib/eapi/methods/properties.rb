@@ -31,30 +31,52 @@ module Eapi
         def property(field, definition = {})
           fs = field.to_sym
           define_accessors fs
-          run_definition fs, definition
-          store_definition fs, definition
+          run_property_definition fs, definition
+          store_property_definition fs, definition
         end
 
         def properties
-          @_definitions.keys
+          @_property_definitions.keys
         end
 
         def definition_for(field)
-          @_definitions ||= {}
-          @_definitions.fetch(field.to_sym, {}).dup
+          @_property_definitions ||= {}
+          @_property_definitions.fetch(field.to_sym, {}).dup
         end
 
-        def store_definition(field, definition)
-          @_definitions        ||= {}
-          @_definitions[field] = definition
+        def store_property_definition(field, definition)
+          @_property_definitions        ||= {}
+          @_property_definitions[field] = definition
         end
 
-        def run_definition(field, definition)
-          Eapi::DefinitionRunner.new(self, field, definition).run
+        def run_property_definition(property_field, definition)
+          Eapi::DefinitionRunners::Property.new(self, property_field, definition).run
         end
 
-        private :run_definition
-        private :store_definition
+        private :run_property_definition
+        private :store_property_definition
+      end
+
+      module ListCLassMethods
+        def elements(definition)
+          run_list_definition definition
+          store_list_definition definition
+        end
+
+        def definition_for_elements
+          @_list_definition
+        end
+
+        def store_list_definition(definition)
+          @_list_definition = definition
+        end
+
+        def run_list_definition(definition)
+          Eapi::DefinitionRunners::List.new(self, definition).run
+        end
+
+        private :run_list_definition
+        private :store_list_definition
       end
     end
 

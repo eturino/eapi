@@ -2,6 +2,16 @@ module Eapi
   module Item
     extend Common
 
+    def self.extended(mod)
+      def mod.included(klass)
+        Eapi::Common.add_features klass
+      end
+    end
+
+    def self.included(klass)
+      Eapi::Common.add_features klass
+    end
+
     def render
       validate!
       create_hash

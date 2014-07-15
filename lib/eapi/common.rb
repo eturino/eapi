@@ -10,16 +10,6 @@ module Eapi
       klass.send :extend, ClassMethods
     end
 
-    def self.extended(mod)
-      def mod.included(klass)
-        Eapi::Common.add_features klass
-      end
-    end
-
-    def self.included(klass)
-      Eapi::Common.add_features klass
-    end
-
     module Basic
       def initialize(** properties)
         properties.each do |k, v|
