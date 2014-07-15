@@ -25,7 +25,7 @@ Or install it yourself as:
 
 ### Ruby version
 
-Works with ruby 2. Tested with MRI 2.1.1 and 2.0.0 
+Works with ruby 2.1, tested with MRI 2.1.1 
 
 ### Gem dependencies
 
