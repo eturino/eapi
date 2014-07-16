@@ -485,6 +485,60 @@ eapi.other [:valid_val]
 eapi.valid? # => true
 ```
 
+### `List` classes
+
+An Eapi `List` is to an Array as an Eapi `Item` is to a Hash. 
+
+It will render itself into an array of elements. It can store a list of elements that will be validated and rendered.
+
+It works using an internal list of elements, to whom it delegates most of the behaviour. Its interface is compatible with an Array, including ActiveSupport methods. 
+
+#### accessor to internal element list: `_list`
+
+The internal list of elements of an Eapi `List` object can be accessed using the `_list` method, that is always an `Array`.
+ 
+#### fluent adder: `add`
+
+Similar to the `set_x` methods for properties, this method will add an element to the internal list and return `self`. 
+
+#### elements definition: `elements`
+
+Similar to the `property` macro to define a property and its requirements, `List` classes can set the definition to be used for its elements using the macro `elements`.
+
+The options for that definition is:
+
+* `required`: it will provoke the list validation to fail if there is at least 1 element in the list
+* `unique`: it will provoke the list validation to fail if there are duplicated elements in the list
+* `element_type` or `type`: it will provoke the list validation to fail if an element does not complies with the given type validation (see type validation on `Item`)
+* `validate_element_with` or `validate_with`: it will execute the given callable object to validate each element, similar to the `validate_element_with` option in the property definition.
+
+#### example
+
+```ruby
+class MyListKlass
+  include Eapi::List
+  
+  elements unique: true
+end
+
+l = MyListKlass.new
+
+# fluent adder
+l.add(1).add(2).add(3)
+
+# internal list accessor 
+l._list # => [1, 2, 3]
+
+# render method (same as #to_a)
+l.render # => [1, 2, 3]
+
+l.valid? # => true
+
+l.add(1) 
+
+l.valid? # => false
+```
+
 ### Pose as other types
 
 An Eapi class can poses as other types, for purposes of `type` checking in a property definition. We use the class method `is` for this.
