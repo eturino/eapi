@@ -77,37 +77,33 @@ module Eapi
 
     protected :initialize_copy
 
-    delegate :frozen?, :[], :[]=, :at, :fetch, :first, :last, :<<, :push, :pop, :shift, :unshift, :insert, :length, :size, :empty?, :rindex, :join, :collect, :map, :select, :values_at, :delete, :delete_at, :delete_if, :reject, :include?, :count, :sample, :bsearch, :to_json_without_active_support_encoder, :slice, :slice!, :sort_by!, :shuffle, :shuffle!,
-             to: :_list
+    DELEGATED_METHODS = [
+      # normal delegation
+      :frozen?, :[], :[]=, :at, :fetch, :first, :last, :<<, :push, :pop, :shift, :unshift, :insert, :length, :size, :empty?, :rindex, :join, :collect, :map, :select, :values_at, :delete, :delete_at, :delete_if, :reject, :include?, :count, :sample, :bsearch, :to_json_without_active_support_encoder, :slice, :slice!, :sort_by!, :shuffle, :shuffle!,
 
-    # for Enumerable
-    delegate :each, :each_index, to: :_list
+      # for Enumerable
+      :each, :each_index,
+
+      # pose as array
+      :to_ary, :*,
+
+      # active support
+      :shelljoin, :append, :prepend, :extract_options!, :to_sentence, :to_formatted_s, :to_default_s, :to_xml, :second, :third, :fourth, :fifth, :forty_two, :to_param, :to_query,
+
+      # destructive that return selection
+      :collect!, :map!, :select!, :reject!,
+    ]
+
+    delegate *DELEGATED_METHODS, to: :_list
 
     # to pose as Array
     alias_method :index, :find_index
 
-    # pose as array
-    delegate :to_ary, :*, to: :_list
-
-    # array active support methods
-    delegate :shelljoin, :append, :prepend, :extract_options!, :to_sentence, :to_formatted_s, :to_default_s, :to_xml, :second, :third, :fourth, :fifth, :forty_two, :to_param, :to_query,
-             to: :_list
-
-
-    # Destructive methods
-
-    # ...that return self or nil
+    # Destructive methods that return self or nil
     [:uniq!, :compact!, :flatten!, :shuffle!, :concat, :clear, :replace, :fill, :reverse!, :rotate!, :sort!, :keep_if].each do |m|
       define_method m do |*args, &block|
         res = _list.send m, *args, &block
         res.nil? ? nil : self
-      end
-    end
-
-    # ...that return the selection
-    [:collect!, :map!, :select!, :reject!].each do |m|
-      define_method m do |*args, &block|
-        _list.send m, *args, &block
       end
     end
 
@@ -120,6 +116,5 @@ module Eapi
 
 
     # transpose, assoc, rassoc , permutation, combination, repeated_permutation, repeated_combination, product, pack ?? => do not use the methods
-
   end
 end
