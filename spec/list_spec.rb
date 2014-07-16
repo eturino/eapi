@@ -396,7 +396,25 @@ RSpec.describe Eapi do
         end
       end
 
-      context 'validate_with lambda'
+      context 'validate_with lambda' do
+        class MyTestClassListValElements
+          include Eapi::List
+          elements validate_with: ->(record, attr, value) do
+            record.errors.add(attr, "element must pass my custom validation") unless value == :valid_val
+          end
+        end
+
+        it 'will run that custom validation for all the elements in the list' do
+          eapi = MyTestClassListValElements.new
+          eapi.add 1
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq [" list element must pass my custom validation"]
+          expect(eapi.errors.messages).to eq({_list: ["element must pass my custom validation"]})
+
+          eapi.clear.add :valid_val
+          expect(eapi).to be_valid
+        end
+      end
 
     end
   end
