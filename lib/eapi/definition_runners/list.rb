@@ -13,6 +13,7 @@ module Eapi
         run_validate_element_type
         run_validate_element_with
         run_validate_uniqueness
+        run_allow_raw
       end
 
       def run_validate_uniqueness
@@ -39,6 +40,10 @@ module Eapi
         end
       end
 
+      def run_allow_raw
+        Runner.allow_raw(klass: klass, field: :_list, allow_raw: allow_raw?)
+      end
+
       def required?
         definition.fetch(:required, false)
       end
@@ -53,6 +58,10 @@ module Eapi
 
       def element_type
         definition.fetch(:element_type, nil) || definition.fetch(:type, nil)
+      end
+
+      def allow_raw?
+        definition.fetch(:allow_raw, false)
       end
     end
 

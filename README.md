@@ -316,6 +316,87 @@ eapi.something # => {}
 
 To trigger the error, the value must not be an instance of the given Type, and also must not respond `true` to `value.is?(type)`
 
+#### Skip type validation with 'raw' values with `allow_raw` option
+
+If we want to check for the type of the elements, but still want the flexibility of using raw `Hash` or `Array` in case we want something specific there, we can specify it with the `allow_raw` option.
+
+With this, eapi will let you skip the type validation when the value is either a `Hash` or an `Array`, assuming that "you know what you are doing".
+
+```ruby
+class ValueKlass
+  include Eapi::Item
+  
+  property :value
+end
+
+class TestKlass
+  include Eapi::Item
+  
+  property :something, type: ValueKlass, allow_raw: true
+  property :somelist, multiple: true, element_type: ValueKlass, allow_raw: true
+end
+
+class TestList
+  include Eapi::List
+  
+  elements type: ValueKlass, allow_raw: true
+end
+
+i = TestKlass.new
+i.something 1
+i.valid? # => false
+
+i.something ValueKlass.new
+i.valid? # => true
+
+i.something({some: :hash})
+i.valid? # => true
+
+i.add_somelist 1
+i.valid? # => false
+
+i.clear_somelist.add_somelist({a: :hash}).add_somelist([:an, :array])
+i.valid? # => true
+
+l = TestList.new
+l.add 1
+l.valid? # => false
+
+i.clear.add(ValueKlass.new).add({a: :hash}).add([:an, :array])
+l.valid? # => true
+```
+
+You can also enable this option after defining the property, with the `property_allow_raw` and `property_disallow_raw` methods and check if it is enabled with `property_allow_raw?`. In `List`s, the methods are `elements_allow_raw`, `elements_disallow_raw` and `elements_allow_raw?`.
+
+```ruby
+class TestKlass
+  include Eapi::Item
+  
+  property :something, type: ValueKlass
+end
+
+TestKlass.property_allow_raw?(:something) # => false
+
+TestKlass.property_allow_raw(:something)
+TestKlass.property_allow_raw?(:something) # => true
+
+TestKlass.property_disallow_raw(:something)
+TestKlass.property_allow_raw?(:something) # => false
+
+class TestList
+  include Eapi::List
+  elements type: ValueKlass
+end
+
+TestList.elements_allow_raw? # => false
+
+TestList.elements_allow_raw
+TestList.elements_allow_raw? # => true
+
+TestList.elements_disallow_raw
+TestList.elements_allow_raw? # => false
+```
+
 #### Custom validation with `validate_with` option
 
 A more specific validation can be used using `validate_with`, that works the same way as `ActiveModel::Validations`. 

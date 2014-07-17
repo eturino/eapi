@@ -6,6 +6,7 @@ module Eapi
         run_multiple_accessor
         run_init
         run_validations
+        run_allow_raw
       end
 
       private
@@ -37,31 +38,29 @@ module Eapi
 
       def run_validate_type
         if type
-          klass.send :validates_each, field do |record, attr, value|
-            unless Eapi::TypeChecker.new(type).is_valid_type?(value)
-              record.errors.add(attr, "must be a #{type}")
-            end
-          end
+          Runner.validate_type(klass: klass, field: field, type: type)
         end
       end
 
       def run_validate_with
         if validate_with
-          klass.send :validates_each, field do |record, attr, value|
-            validate_with.call(record, attr, value)
-          end
+          Runner.validate_with(klass: klass, field: field, validate_with: validate_with)
         end
+      end
+
+      def run_allow_raw
+        Runner.allow_raw(klass: klass, field: field, allow_raw: allow_raw?)
       end
 
       def run_init
         if type || multiple?
-          klass.send :define_init, field, type || Array
+          Runner.init(klass: klass, field: field, type: type || Array)
         end
       end
 
       def run_multiple_accessor
         if multiple?
-          klass.send :define_multiple_accessor, field
+          Runner.multiple_accessor(klass: klass, field: field)
         end
       end
 
@@ -94,6 +93,10 @@ module Eapi
 
       def type
         definition.fetch(:type, nil)
+      end
+
+      def allow_raw?
+        definition.fetch(:allow_raw, false)
       end
     end
   end

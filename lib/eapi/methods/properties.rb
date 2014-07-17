@@ -28,6 +28,24 @@ module Eapi
       end
 
       module ClassMethods
+        def property_allow_raw(field)
+          @_property_allow_raw ||= {}
+
+          @_property_allow_raw[field.to_sym] = true
+        end
+
+        def property_disallow_raw(field)
+          @_property_allow_raw ||= {}
+
+          @_property_allow_raw[field.to_sym] = false
+        end
+
+        def property_allow_raw?(field)
+          @_property_allow_raw ||= {}
+
+          @_property_allow_raw.fetch(field.to_sym, false)
+        end
+
         def property(field, definition = {})
           fs = field.to_sym
           define_accessors fs
@@ -58,6 +76,18 @@ module Eapi
       end
 
       module ListCLassMethods
+        def elements_allow_raw
+          property_allow_raw(:_list)
+        end
+
+        def elements_disallow_raw
+          property_disallow_raw(:_list)
+        end
+
+        def elements_allow_raw?
+          property_allow_raw?(:_list)
+        end
+
         def elements(definition)
           run_list_definition definition
           store_list_definition definition

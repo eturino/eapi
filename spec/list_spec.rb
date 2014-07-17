@@ -373,6 +373,46 @@ RSpec.describe Eapi do
           subject.add "Many Strings"
           expect(subject).to be_valid
         end
+
+        context 'with option allow_raw (default false)' do
+          class AllowRawValueKlass
+            include Eapi::Item
+            property :something
+          end
+
+          class ListAllowRawTestKlass
+            include Eapi::List
+
+            elements type: AllowRawValueKlass, allow_raw: true
+          end
+
+          subject { ListAllowRawTestKlass.new }
+
+          it 'allows a Hash or Array value with type check' do
+            subject.add(1)
+            expect(subject).not_to be_valid
+
+            subject.clear.add(AllowRawValueKlass.new)
+            expect(subject).to be_valid
+
+            subject.clear.add([1, 2, 3]).add({a: :hash})
+            expect(subject).to be_valid
+          end
+
+          it 'can be allowed and disallowed after definition' do
+            orig = ListAllowRawTestKlass.elements_allow_raw?
+            ListAllowRawTestKlass.elements_allow_raw
+            expect(ListAllowRawTestKlass).to be_elements_allow_raw
+            ListAllowRawTestKlass.elements_disallow_raw
+            expect(ListAllowRawTestKlass).not_to be_elements_allow_raw
+
+            if orig
+              ListAllowRawTestKlass.elements_allow_raw
+            else
+              ListAllowRawTestKlass.elements_disallow_raw
+            end
+          end
+        end
       end
 
       context 'unique' do
