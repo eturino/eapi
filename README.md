@@ -714,6 +714,7 @@ As it works now, the children of your extension will be also children of `Eapi`,
 ## TODO
 
 1. `type` option in property definition to accept symbol -> if a class can be recognised by that name, it works ok. If not, it still uses that for type validation (using `is?`) but it does not use that in the `init_` method.
+2. `type` option to be divided in `init_type` (must be a class or a class name) and `check_type` (class / class name or type validation using `is?`)
 
 ## Contributing
 
