@@ -29,21 +29,15 @@ module Eapi
 
       module ClassMethods
         def property_allow_raw(field)
-          @_property_allow_raw ||= {}
-
-          @_property_allow_raw[field.to_sym] = true
+          _property_allow_raw[field.to_sym] = true
         end
 
         def property_disallow_raw(field)
-          @_property_allow_raw ||= {}
-
-          @_property_allow_raw[field.to_sym] = false
+          _property_allow_raw[field.to_sym] = false
         end
 
         def property_allow_raw?(field)
-          @_property_allow_raw ||= {}
-
-          @_property_allow_raw.fetch(field.to_sym, false)
+          _property_allow_raw.fetch(field.to_sym, false)
         end
 
         def property(field, definition = {})
@@ -54,23 +48,31 @@ module Eapi
         end
 
         def properties
-          @_property_definitions.keys
+          _property_definitions.keys
         end
 
         def definition_for(field)
-          @_property_definitions ||= {}
-          @_property_definitions.fetch(field.to_sym, {}).dup
+          _property_definitions.fetch(field.to_sym, {}).dup
         end
 
         def store_property_definition(field, definition)
-          @_property_definitions        ||= {}
-          @_property_definitions[field] = definition
+          _property_definitions[field] = definition.tap { |x| x.freeze }
         end
 
         def run_property_definition(property_field, definition)
           Eapi::DefinitionRunners::Property.new(self, property_field, definition).run
         end
 
+        def _property_allow_raw
+          @_property_allow_raw ||= {}
+        end
+
+        def _property_definitions
+          @_property_definitions ||= {}
+        end
+
+        private :_property_allow_raw
+        private :_property_definitions
         private :run_property_definition
         private :store_property_definition
       end
@@ -98,7 +100,7 @@ module Eapi
         end
 
         def store_list_definition(definition)
-          @_list_definition = definition
+          @_list_definition = definition.tap { |x| x.freeze }
         end
 
         def run_list_definition(definition)
