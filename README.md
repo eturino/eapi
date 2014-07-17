@@ -54,7 +54,7 @@ end
 
 ### Initialize
 
-`Eapi::Common` will add a `initialize` method to your class that will accept a hash. It will recognise the defined properties in that hash and will set them. 
+`Eapi::Item` will add a `initialize` method to your class that will accept a hash. It will recognise the defined properties in that hash and will set them. 
 
 For now any unrecognised property in the hash will be ignored. This may change in the future.
 
@@ -673,7 +673,7 @@ obj.is_a_super_duper_thing? # => false
 
 ### Use in your own library
 
-You can add the functionality of Eapi to your own library module, and use it instead of `Eapi::Common`.
+You can add the functionality of Eapi to your own library module, and use it instead of `Eapi::Item` or `Eapi::List`.
 
 Method-call-initialise shortcut can ignore the base name:
 
@@ -683,7 +683,7 @@ module MyExtension
 end
 
 class TestKlass
-  include MyExtension::Common
+  include MyExtension::Item
   property :something
 end
 
@@ -695,7 +695,7 @@ obj.something # => 1
 
 module MyExtension
   class TestKlassInside
-    include MyExtension::Common
+    include MyExtension::Item
     property :something
   end
 end
