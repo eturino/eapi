@@ -47,6 +47,7 @@ module Eapi
 
       module InstanceMethods
         def is?(type)
+          return true if type.kind_of?(Module) && kind_of?(type)
           self.class.is?(type)
         end
 
@@ -61,11 +62,12 @@ module Eapi
         end
 
         def is?(type)
+          return true if Checker._is_type_module?(self, type)
+
           type_sym = Types.to_type_sym type
+          return true if Checker._is_type_module_sym?(self, type_sym)
 
-          return true if self == type || Types.to_type_sym(self) == type_sym
           return false unless @i_am_a.present?
-
           !!@i_am_a.include?(type_sym) # force it to be a bool
         end
 
@@ -77,6 +79,16 @@ module Eapi
         end
       end
 
+      module Checker
+        def self._is_type_module?(klass, mod_or_class)
+          return false unless mod_or_class.kind_of?(Module)
+          klass == mod_or_class || klass.ancestors.include?(mod_or_class)
+        end
+
+        def self._is_type_module_sym?(klass, type_sym)
+          Types.to_type_sym(self) == type_sym || klass.ancestors.any? { |a| Types.to_type_sym(a) == type_sym }
+        end
+      end
     end
   end
 end

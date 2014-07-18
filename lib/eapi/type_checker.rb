@@ -9,7 +9,7 @@ module Eapi
     end
 
     def is_valid_type?(value)
-      value.nil? || is_same_type?(value) || poses_as_type?(value) || valid_raw?(value)
+      value.nil? || valid_raw?(value) || is_same_type?(value) || poses_as_type?(value)
     end
 
     private
