@@ -1,6 +1,18 @@
 module Eapi
   class TypeChecker
 
+    def self.constant_for_type(type)
+      if type.kind_of? Module
+        type
+      else
+        begin
+          type.to_s.constantize
+        rescue NameError
+          nil
+        end
+      end
+    end
+
     attr_reader :given_type, :allow_raw
 
     def initialize(given_type, allow_raw = false)
@@ -20,7 +32,7 @@ module Eapi
     end
 
     def is_same_type?(value)
-      value.kind_of?(type)
+      value.kind_of?(type_class) if type_class.present?
     end
 
     def poses_as_type?(value)
@@ -28,11 +40,15 @@ module Eapi
     end
 
     def type
-      if given_type.kind_of? Module
-        given_type
-      else
-        given_type.to_s.constantize
-      end
+      given_type
+    end
+
+    def type_class
+      @type_class ||= load_type_class
+    end
+
+    def load_type_class
+      Eapi::TypeChecker.constant_for_type given_type
     end
 
     def allow_raw?

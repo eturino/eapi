@@ -166,6 +166,39 @@ RSpec.describe Eapi do
           expect(eapi).to be_valid
         end
       end
+
+
+      describe 'using a string as type that is not a class' do
+        class SomeValueSomethingTrue
+          def is?(type)
+            type.to_s == 'my_something'
+          end
+        end
+
+        class SomeValueSomethingFalse
+          def is?(type)
+            type.to_s == 'not'
+          end
+        end
+
+        class MyTestClassValTypeStringNotClass
+          include Eapi::List
+
+          property :something, type: 'my_something'
+        end
+
+        it 'valid if value returns true to `is?(type)`' do
+          eapi = MyTestClassValTypeStringNotClass.new something: SomeValueSomethingTrue.new
+          expect(eapi).to be_valid
+        end
+
+        it 'invalid if value returns false to `is?(type)`' do
+          eapi = MyTestClassValTypeStringNotClass.new something: SomeValueSomethingFalse.new
+          expect(eapi).not_to be_valid
+          expect(eapi.errors.full_messages).to eq ["Something must be a my_something"]
+          expect(eapi.errors.messages).to eq({something: ["must be a my_something"]})
+        end
+      end
     end
   end
 

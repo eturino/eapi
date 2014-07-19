@@ -466,7 +466,7 @@ a property can be defined as a multiple property. This will affect the methods d
 
 #### Define property as multiple with `multiple` option
 
-A property marked as `multiple` will be initialised with an empty array. If no type is specified then it will use Array as a type, only for purposes of the `init_property_name` method.
+A property marked as `multiple` will be initialised with an empty array. If no `init_class` is specified then it will use Array as a `init_class`, for purposes of the `init_property_name` method.
 
 ```ruby
 class TestKlass
@@ -494,14 +494,16 @@ x.add_something(1).add_something(2)
 x.something # => [1, 2]
 ```
 
-#### Implicit `multiple` depending on Type
+#### Implicit `multiple` depending on `init_class` or `type`
 
-Even without `multiple` option specified, if the `type` option is: 
+Even without `multiple` option specified, if the `init_class` option is: 
 * `Array`
 * `Set`
 * a class that responds to `is_multiple?` with true
 
 then the property is marked as multiple.
+ 
+It will also work if the `type` option is given with a class or a class name that complies with the above restrictions.
  
 example: (all `TestKlass` properties are marked as multiple)
 ```ruby
@@ -520,9 +522,10 @@ class TestKlass
   include Eapi::Item
 
   property :p1, multiple: true
-  property :p2, type: Array
-  property :p3, type: Set
-  property :p4, type: MyCustomList
+  property :p2, init_class: Array
+  property :p3, init_class: "Set"
+  property :p4, type: Set
+  property :p5, type: "MyCustomList"
 end
 
 x = TestKlass.new

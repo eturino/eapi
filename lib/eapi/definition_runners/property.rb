@@ -53,8 +53,10 @@ module Eapi
       end
 
       def run_init
-        if type || multiple?
-          Runner.init(klass: klass, field: field, type: type || Array)
+        if init_class
+          Runner.init(klass: klass, field: field, type: init_class)
+        elsif multiple? && (type.blank? || type.to_s == 'Array')
+          Runner.init(klass: klass, field: field, type: Array)
         end
       end
 
@@ -65,10 +67,12 @@ module Eapi
       end
 
       def type_multiple?(type)
-        return false if type.nil?
-        return true if type == Array || type == Set
+        type_class = Eapi::TypeChecker.constant_for_type type
 
-        type.respond_to?(:is_multiple?) && type.is_multiple?
+        return false if type_class.nil?
+        return true if type_class == Array || type_class == Set
+
+        type_class.respond_to?(:is_multiple?) && type_class.is_multiple?
       end
 
       def validate_element_with
@@ -76,7 +80,7 @@ module Eapi
       end
 
       def multiple?
-        definition.fetch(:multiple, false) || type_multiple?(type)
+        definition.fetch(:multiple, false) || type_multiple?(type) || type_multiple?(init_class)
       end
 
       def required?
@@ -93,6 +97,10 @@ module Eapi
 
       def type
         definition.fetch(:type, nil)
+      end
+
+      def init_class
+        definition.fetch(:init_class, nil)
       end
 
       def allow_raw?
