@@ -3,6 +3,8 @@ module Eapi
     def self.convert_value(value)
       if value.nil?
         nil
+      elsif can_render? value
+        value_from_render value
       elsif is_list? value
         value_from_list value
       elsif is_hash?(value)
@@ -13,6 +15,10 @@ module Eapi
     end
 
     private
+    def self.can_render?(value)
+      value.respond_to? :render
+    end
+
     def self.is_hash?(value)
       value.respond_to? :to_h
     end
@@ -21,6 +27,10 @@ module Eapi
       return false if value.kind_of?(Hash) || value.kind_of?(OpenStruct)
 
       value.respond_to? :to_a
+    end
+
+    def self.value_from_render(value)
+      value.render
     end
 
     def self.value_from_list(value)

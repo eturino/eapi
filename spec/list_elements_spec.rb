@@ -135,6 +135,56 @@ RSpec.describe Eapi do
       end
     end
 
+    context '#clear_something' do
+      it 'if value is nil, returns self' do
+        [
+          MyTestClassValMultTypeTest,
+          MyTestClassValMultImplTypeTest,
+          MyTestClassValMultImpl2TypeTest,
+          MyTestClassValMultImpl3TypeTest,
+        ].each do |eapi_class|
+          eapi = eapi_class.new
+          expect(eapi.clear_something).to be eapi
+          expect(eapi.something).to be_nil
+        end
+      end
+
+      it 'if value respond to clear, it will call it' do
+        [
+          MyTestClassValMultTypeTest,
+          MyTestClassValMultImplTypeTest,
+          MyTestClassValMultImpl2TypeTest,
+          MyTestClassValMultImpl3TypeTest,
+        ].each do |eapi_class|
+          o = double()
+          expect(o).to receive(:clear)
+
+          eapi = eapi_class.new something: o
+          expect(eapi.clear_something).to be eapi
+        end
+      end
+
+      it 'if value do not respond to clear, it will call the `init_something` method' do
+        [
+          MyTestClassValMultTypeTest,
+          MyTestClassValMultImplTypeTest,
+          MyTestClassValMultImpl2TypeTest,
+          MyTestClassValMultImpl3TypeTest,
+        ].each do |eapi_class|
+          o    = double()
+          eapi = eapi_class.new something: o
+          expect(eapi).to receive(:init_something)
+          expect(eapi.clear_something).to be eapi
+        end
+      end
+
+      it 'if value do not respond to clear and we do not have `init_something` method, raise exception' do
+        eapi = MyTestClassValMultImpl3TypeTest.new something: MyMultipleValueTestKlass.new
+        expect { eapi.clear_something }.to raise_exception()
+      end
+
+    end
+
     describe 'element validation' do
       class MyTestClassValElements
         include Eapi::Item

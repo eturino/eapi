@@ -4,6 +4,7 @@ module Eapi
     class Property < Struct.new(:klass, :field, :definition)
       def run
         run_multiple_accessor
+        run_multiple_clearer
         run_init
         run_validations
         run_allow_raw
@@ -63,6 +64,12 @@ module Eapi
       def run_multiple_accessor
         if multiple?
           Runner.multiple_accessor(klass: klass, field: field)
+        end
+      end
+
+      def run_multiple_clearer
+        if multiple?
+          Runner.multiple_clearer(klass: klass, field: field)
         end
       end
 

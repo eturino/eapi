@@ -71,6 +71,10 @@ module Eapi
       def self.multiple_accessor(klass:, field:)
         klass.send :define_multiple_accessor, field
       end
+
+      def self.multiple_clearer(klass:, field:)
+        klass.send :define_multiple_clearer, field
+      end
     end
   end
 end

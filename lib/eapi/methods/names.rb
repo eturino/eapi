@@ -10,6 +10,10 @@ module Eapi
         "add_#{field}"
       end
 
+      def self.clearer(field)
+        "clear_#{field}"
+      end
+
       def self.getter(field)
         "#{field}"
       end
