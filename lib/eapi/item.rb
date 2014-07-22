@@ -20,9 +20,14 @@ module Eapi
       {}.tap do |hash|
         _properties.each do |prop|
           val        = converted_value_for(prop)
-          hash[prop] = val unless val.nil?
+          hash[prop] = val unless to_be_ignored?(val, prop)
         end
       end
+    end
+
+    private
+    def to_be_ignored?(value, property)
+      Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.ignore_definition(property)
     end
   end
 end

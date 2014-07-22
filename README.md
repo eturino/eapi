@@ -92,6 +92,30 @@ By default, each property will be converted into a simple element (Array, Hash, 
 
 By default, any `nil` values will be omitted in the final structure by the `perform_render` method, in both `Item` and `List`.
 
+With the `ignore` option in the definition, that behaviour can be modified.
+
+* `ignore: false`: that no value will be ignored
+* `ignore: :blank?`: with a string or a symbol in the `ignore` option, the value will be ignored if it respond truthy to the message represented by that `ignore` option. (ie: `ignore: :blank?` => all values that return truthy to `value.blank?` will be ignored)
+* `ignore: Proc|Callable|Lambda`: with a callable object in the `ignore` option, the value will be ignored if the callable object respond truthy when invoked with the value as argument. 
+
+```ruby
+class ExampleItem
+  include Eapi::Item
+
+  # by default, ignored if value is `nil`
+  property :prop1 
+  
+  # ignored if value returns truthy to `.blank?`
+  property :prop2, ignore: :blank?
+  
+  # never ignored
+  property :prop3, ignore: false
+  
+  # ignored if the callable object returns true when `.call(value)` (in this case, if the value is equal to "i don't want you")
+  property :prop4, ignore: Proc.new {|val| val == "i don't want you"} 
+end
+```
+
 #### Example
 
 To demonstrate this behaviour we'll have an Eapi enabled class `ExampleEapi` and another `ComplexValue` class that responds to `to_h`. We'll set into the `ExampleEapi` object complex properties to demonstrate the conversion into a simple structure.

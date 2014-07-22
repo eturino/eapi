@@ -35,7 +35,7 @@ module Eapi
     end
 
     def perform_render
-      _list.map { |val| convert_value val }
+      _list.map { |val| convert_value val }.reject { |x| to_be_ignored x }
     end
 
     def _list
@@ -73,6 +73,11 @@ module Eapi
     end
 
     protected :initialize_copy
+
+    private
+    def to_be_ignored(value)
+      Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.elements_ignore_definition
+    end
 
     # transpose, assoc, rassoc , permutation, combination, repeated_permutation, repeated_combination, product, pack ?? => do not use the methods
   end

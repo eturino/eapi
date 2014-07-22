@@ -71,6 +71,10 @@ module Eapi
           @_property_definitions ||= {}
         end
 
+        def ignore_definition(field)
+          definition_for(field).fetch(:ignore, :nil?)
+        end
+
         private :_property_allow_raw
         private :_property_definitions
         private :run_property_definition
@@ -90,13 +94,17 @@ module Eapi
           property_allow_raw?(:_list)
         end
 
+        def elements_ignore_definition
+          definition_for_elements.fetch(:ignore, :nil?)
+        end
+
         def elements(definition)
           run_list_definition definition
           store_list_definition definition
         end
 
         def definition_for_elements
-          @_list_definition
+          @_list_definition ||= {}
         end
 
         def store_list_definition(definition)
