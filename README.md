@@ -63,6 +63,177 @@ This will provide:
 
 We'll se this in detail.
 
+
+## Common behaviour to `Item` and `List`
+
+The following features are shared between `List`s and `Item`s.
+
+### Convert to hashes: `render` and `perform_render`
+
+All Eapi objects respond to `render` and return by default a hash (for `Item` objects) or an array (for `List` objects), as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to the simple structure.
+
+`Item` objects will invoke `render` when receiving `to_h`, while `List` objects will do the same when receiving `to_a`.
+ 
+#### Methods involved
+
+Inside, `render` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `perform_render`.
+
+On `Item` objects, the `perform_render` method will create a hash with the properties as keys. Each value will be "converted" (see "Values conversion" section). On `List` objects, the `perform_render` will create an array, with all 
+
+#### Values conversion
+
+By default, each property will be converted into a simple element (Array, Hash, or simple value).  
+
+1. If a value responds to `render`, it will call that method. That way, Eapi objects that are values of some properties or lists will be validated and rendered (converted) themselves (render / value conversion cascade).
+2. If a value is an Array or a Set, `to_a` will be invoked and all values will be converted in the same way.
+3. If a value respond to `to_h`, it will be called.
+
+#### Ignoring values
+
+By default, any `nil` values will be omitted in the final structure by the `perform_render` method, in both `Item` and `List`.
+
+#### Example
+
+To demonstrate this behaviour we'll have an Eapi enabled class `ExampleEapi` and another `ComplexValue` class that responds to `to_h`. We'll set into the `ExampleEapi` object complex properties to demonstrate the conversion into a simple structure.
+
+```ruby
+class ComplexValue
+  def to_h
+    {
+      a: Set.new(['hello', 'world', MyTestObject.new])
+    }
+  end
+end
+
+class ExampleEapi
+  include Eapi::Item
+
+  property :something, required: true
+  property :other
+end
+
+# TESTING `render`
+
+list = Set.new [
+                 OpenStruct.new(a: 1, 'b' => 2),
+                 {c: 3, 'd' => 4},
+                 nil
+               ]
+
+eapi = ExampleEapi.new something: list, other: ComplexValue.new
+
+# same as eapi.to_h
+eapi.render # => 
+# {
+#   something: [
+#                {a: 1, b: 2},
+#                {c: 3, d: 4},
+#              ],
+# 
+#   other:     {
+#                a: [
+#                     'hello',
+#                     'world',
+#                     {a: 'hello'}
+#                   ]
+#              }
+# }
+```
+
+### Pose as other types
+
+An Eapi class can poses as other types, for purposes of `type` checking in a property definition. We use the class method `is` for this.
+
+the `is?` method is also available as an instance method. 
+
+Eapi also creates specific instance and class methods like `is_a_some_type?` or `is_an_another_type?`.
+
+example:
+
+```ruby
+class SuperTestKlass
+  include Eapi::Item
+end
+ 
+class TestKlass < SuperTestKlass
+  is :one_thing, :other_thing, OtherType
+end
+
+TestKlass.is? TestKlass # => true
+TestKlass.is? 'TestKlass' # => true
+TestKlass.is? :TestKlass # => true
+
+TestKlass.is? SuperTestKlass # => true
+TestKlass.is? 'SuperTestKlass' # => true
+TestKlass.is? :SuperTestKlass # => true
+
+TestKlass.is? :one_thing # => true
+TestKlass.is? :other_thing # => true
+TestKlass.is? :other_thing # => true
+TestKlass.is? OtherType # => true
+TestKlass.is? :OtherType # => true
+
+TestKlass.is? SomethingElse # => false
+TestKlass.is? :SomethingElse # => false
+
+# also works on instance
+obj = TestKlass.new
+obj.is? TestKlass # => true
+obj.is? :one_thing # => true
+
+# specific type test methods
+TestKlass.is_a_test_klass? # => true
+TestKlass.is_an_one_thing? # => true
+TestKlass.is_a_super_duper_thing? # => false
+
+obj.is_a_test_klass? # => true
+obj.is_an_one_thing? # => true
+obj.is_a_super_duper_thing? # => false
+```
+
+### Object creation shortcut: calling methods in Eapi
+
+Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
+
+The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search.new(name: 'Paco')`. We can also use `Eapi.Esr_Search(...)` and other combinations.
+
+To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
+
+```ruby
+class MyTestKlassOutside
+  include Eapi::Item
+
+  property :something
+end
+
+module Somewhere
+  class TestKlassInModule
+    include Eapi::Item
+
+    property :something
+  end
+end
+```
+
+As shown by rspec run:
+
+```
+    initialise using method calls to Eapi
+      Eapi.MyTestKlassOutside(...)
+        calls MyTestKlassOutside.new
+      Eapi.my_test_klass_outside(...)
+        calls MyTestKlassOutside.new
+      Eapi.Somewhere__TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere__test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.Somewhere_TestKlassInModule(...)
+        calls Somewhere::TestKlassInModule.new
+      Eapi.somewhere_test_klass_in_module(...)
+        calls Somewhere::TestKlassInModule.new
+```
+
+
 ## `Eapi::Item`: Property based Item objects
 
 ### `initialize` method
@@ -139,76 +310,6 @@ x = MyTestKlass.new
 res = x.one :fluent
 x.one # => :fluent
 res.equal? x # => true
-```
-
-### Convert to hashes: `render`, `to_h` and `create_hash`
-
-All Eapi classes respond to `render` and return a hash (for `Item` classes) or an array (for `List` classes), as it is the main purpose of this gem. It will execute any validation (see property definition), and if everything is ok, it will convert it to a simple hash structure.
-
-`Item` classes will invoke `render` when receiving `to_h`, while `List` classes will do the same when receiving `to_a`
- 
-#### Methods involved
-
-Inside, `render` will call `valid?`, raise an error of type `Eapi::Errors::InvalidElementError` if something is not right, and if everything is ok it will call `create_hash`.
-
-The `create_hash` method will create a hash with the properties as keys. Each value will be "converted" (see "Values conversion" section).
-
-#### Values conversion
-
-By default, each property will be converted into a simple element (Array, Hash, or simple value).  
-
-1. If a value responds to `render`, it will call that method. That way, Eapi objects that are values of some properties or lists will be validated and rendered (converted) themselves (render / value conversion cascade).
-2. If a value is an Array or a Set, `to_a` will be invoked and all values will be converted in the same way.
-3. If a value respond to `to_h`, it will be called.
-
-important: *any nil value will be omitted* in the final hash.
-
-#### Example
-
-To demonstrate this behaviour we'll have an Eapi enabled class `ExampleEapi` and another `ComplexValue` class that responds to `to_h`. We'll set into the `ExampleEapi` object complex properties to demonstrate the conversion into a simple structure.
-
-```ruby
-class ComplexValue
-  def to_h
-    {
-      a: Set.new(['hello', 'world', MyTestObject.new])
-    }
-  end
-end
-
-class ExampleEapi
-  include Eapi::Item
-
-  property :something, required: true
-  property :other
-end
-
-# TESTING `render`
-
-list = Set.new [
-                 OpenStruct.new(a: 1, 'b' => 2),
-                 {c: 3, 'd' => 4},
-                 nil
-               ]
-
-eapi = ExampleEapi.new something: list, other: ComplexValue.new
-
-# same as eapi.to_h
-eapi.render # => 
-# {
-#   something: [
-#                {a: 1, b: 2},
-#                {c: 3, d: 4},
-#              ],
-# 
-#   other:     {
-#                a: [
-#                     'hello',
-#                     'world',
-#                     {a: 'hello'}
-#                   ]
-#              }
-# }
 ```
 
 ### Property definition
@@ -619,103 +720,6 @@ l.valid? # => true
 l.add(1) 
 
 l.valid? # => false
-```
-
-## Common to `Item` and `List`
-
-The following features are shared between `List`s and `Item`s.
-
-### Pose as other types
-
-An Eapi class can poses as other types, for purposes of `type` checking in a property definition. We use the class method `is` for this.
-
-the `is?` method is also available as an instance method. 
-
-Eapi also creates specific instance and class methods like `is_a_some_type?` or `is_an_another_type?`.
-
-example:
-
-```ruby
-class SuperTestKlass
-  include Eapi::Item
-end
- 
-class TestKlass < SuperTestKlass
-  is :one_thing, :other_thing, OtherType
-end
-
-TestKlass.is? TestKlass # => true
-TestKlass.is? 'TestKlass' # => true
-TestKlass.is? :TestKlass # => true
-
-TestKlass.is? SuperTestKlass # => true
-TestKlass.is? 'SuperTestKlass' # => true
-TestKlass.is? :SuperTestKlass # => true
-
-TestKlass.is? :one_thing # => true
-TestKlass.is? :other_thing # => true
-TestKlass.is? :other_thing # => true
-TestKlass.is? OtherType # => true
-TestKlass.is? :OtherType # => true
-
-TestKlass.is? SomethingElse # => false
-TestKlass.is? :SomethingElse # => false
-
-# also works on instance
-obj = TestKlass.new
-obj.is? TestKlass # => true
-obj.is? :one_thing # => true
-
-# specific type test methods
-TestKlass.is_a_test_klass? # => true
-TestKlass.is_an_one_thing? # => true
-TestKlass.is_a_super_duper_thing? # => false
-
-obj.is_a_test_klass? # => true
-obj.is_an_one_thing? # => true
-obj.is_a_super_duper_thing? # => false
-```
-
-### Object creation shortcut: calling methods in Eapi
-
-Calling a method with the desired class name in `Eapi` module will do the same as `DesiredClass.new(...)`. The name can be the same as the class, or an underscorised version, or a simple underscored one.  
-
-The goal is to use `Eapi.esr_search(name: 'Paco')` as a shortcut to `Esr::Search.new(name: 'Paco')`. We can also use `Eapi.Esr_Search(...)` and other combinations.
-
-To show this feature and all the combinations for method names, we'll use the 2 example classes that are used in the actual test rspec.
-
-```ruby
-class MyTestKlassOutside
-  include Eapi::Item
-
-  property :something
-end
-
-module Somewhere
-  class TestKlassInModule
-    include Eapi::Item
-
-    property :something
-  end
-end
-```
-
-As shown by rspec run:
-
-```
-    initialise using method calls to Eapi
-      Eapi.MyTestKlassOutside(...)
-        calls MyTestKlassOutside.new
-      Eapi.my_test_klass_outside(...)
-        calls MyTestKlassOutside.new
-      Eapi.Somewhere__TestKlassInModule(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.somewhere__test_klass_in_module(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.Somewhere_TestKlassInModule(...)
-        calls Somewhere::TestKlassInModule.new
-      Eapi.somewhere_test_klass_in_module(...)
-        calls Somewhere::TestKlassInModule.new
 ```
 
 ## Using Eapi in your own library
