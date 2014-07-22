@@ -10,7 +10,12 @@ module Eapi
 
         define_method fluent_adder do |value|
           current = send(getter) || send(init)
-          current << value
+          if current.respond_to? :add
+            current.add value
+          else
+            current << value
+          end
+
           send(fluent_setter, current)
         end
       end
