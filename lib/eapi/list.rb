@@ -30,14 +30,11 @@ module Eapi
       true
     end
 
-    def render
-      validate!
-      create_array
+    def to_a
+      render
     end
 
-    alias_method :to_a, :render
-
-    def create_array
+    def perform_render
       _list.map { |val| convert_value val }
     end
 

@@ -22,6 +22,11 @@ module Eapi
       def validate!
         raise Eapi::Errors::InvalidElementError, "errors: #{errors.full_messages}, self: #{self.inspect}" unless valid?
       end
+
+      def render
+        validate!
+        perform_render
+      end
     end
 
     module ClassMethods

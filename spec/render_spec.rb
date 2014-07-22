@@ -8,6 +8,7 @@ RSpec.describe Eapi do
 
       property :something, required: true
       property :other
+      property :again
     end
 
     class MyTestObject
@@ -20,6 +21,24 @@ RSpec.describe Eapi do
 
     class MyTestObjectComplex
       def to_h
+        {
+          a: Set.new(['hello', 'world', MyTestObject.new])
+        }
+      end
+
+      def expected
+        {
+          a: [
+               'hello',
+               'world',
+               {a: 'hello'}
+             ]
+        }
+      end
+    end
+
+    class MyTestObjectComplexRender
+      def render
         {
           a: Set.new(['hello', 'world', MyTestObject.new])
         }
@@ -58,7 +77,7 @@ RSpec.describe Eapi do
       expect(eapi.to_h).to eq expected
     end
 
-    it 'hash with elements, all converted to basic Arrays and Hashes (keys as symbols), and exluding nils (if all validations pass)' do
+    it 'hash with elements, all converted to basic Arrays and Hashes (keys as symbols), and excluding nils (if all validations pass)' do
       list = Set.new [
                        OpenStruct.new(a: 1, 'b' => 2),
                        {c: 3, 'd' => 4},
@@ -66,6 +85,7 @@ RSpec.describe Eapi do
                      ]
 
       other = MyTestObjectComplex.new
+      again = MyTestObjectComplexRender.new
 
       expected = {
         something: [
@@ -73,12 +93,14 @@ RSpec.describe Eapi do
                      {c: 3, d: 4},
                    ],
 
-        other:     other.expected
+        other:     other.expected,
+        again:     again.expected
       }
 
       eapi = MyTestClassToH.new
       eapi.something list
       eapi.other other
+      eapi.again other
 
       expect(eapi.to_h).to eq expected
 

@@ -12,14 +12,11 @@ module Eapi
       Eapi::Common.add_features klass
     end
 
-    def render
-      validate!
-      create_hash
+    def to_h
+      render
     end
 
-    alias_method :to_h, :render
-
-    def create_hash
+    def perform_render
       {}.tap do |hash|
         _properties.each do |prop|
           val        = converted_value_for(prop)
