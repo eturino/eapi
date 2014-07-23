@@ -75,6 +75,14 @@ module Eapi
           definition_for(field).fetch(:ignore, :nil?)
         end
 
+        def default_value_for?(property)
+          definition_for(property).key? :default
+        end
+
+        def default_value_for(property)
+          definition_for(property).fetch(:default, nil)
+        end
+
         private :_property_allow_raw
         private :_property_definitions
         private :run_property_definition

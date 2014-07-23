@@ -379,6 +379,26 @@ eapi.errors.full_messages # => ["Something can't be blank"]
 eapi.errors.messages # => {something: ["can't be blank"]}
 ```
 
+#### Establish a default value for the property in case of to-be-ignored value with `default` option
+
+A property whose value is ignored (according with the `ignore` option), will use the value specifie in the `default` option.
+
+example:
+
+```ruby
+class TestKlass
+  include Eapi::Item
+
+  property :something, ignored: :blank?, default: 123
+end
+
+eapi = TestKlass.new
+
+# setting a value that will be ignored (in this example, an empty string, that will respond trythy to `.blank?`)
+eapi.something ""
+eapi.render # => {something: 123}
+```
+
 #### Specify the property's Type with `type` option
 
 If a property is defined to be of a specific type, the value will be validated to meet that criteria. It means that the value must be of the specified type. It will use `value.kind_of?(type)` (if type represents an actual class), and if that fails it will use `value.is?(type)` if defined.
