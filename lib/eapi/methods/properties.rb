@@ -19,11 +19,11 @@ module Eapi
         end
 
         def converted_value_for(prop)
-          convert_value get(prop)
+          convert_value get(prop), self.class.defined_convert_with_for(prop)
         end
 
-        def convert_value(value)
-          Eapi::ValueConverter.convert_value(value)
+        def convert_value(value, convert_with = nil)
+          Eapi::ValueConverter.convert_value(value, self, convert_with)
         end
 
         def converted_or_default_value_for(property)
@@ -110,6 +110,10 @@ module Eapi
 
         def default_value_for(property)
           definition_for(property).fetch(:default, nil)
+        end
+
+        def defined_convert_with_for(property)
+          definition_for(property).fetch(:convert_with, nil)
         end
 
         private :_property_allow_raw

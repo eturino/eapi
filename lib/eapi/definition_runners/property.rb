@@ -94,6 +94,10 @@ module Eapi
         definition.fetch(:required, false)
       end
 
+      def allow_raw?
+        definition.fetch(:allow_raw, false)
+      end
+
       def validate_with
         definition.fetch(:validate_with, nil)
       end
@@ -110,9 +114,6 @@ module Eapi
         definition.fetch(:init_class, nil)
       end
 
-      def allow_raw?
-        definition.fetch(:allow_raw, false)
-      end
     end
   end
 end

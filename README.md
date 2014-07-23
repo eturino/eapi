@@ -88,6 +88,40 @@ By default, each property will be converted into a simple element (Array, Hash, 
 2. If a value is an Array or a Set, `to_a` will be invoked and all values will be converted in the same way.
 3. If a value respond to `to_h`, it will be called.
 
+#### Custom value conversion
+
+We can override the default value conversion using the `convert_with` option in the property definition. It will accept:
+
+* a symbol (message to be sent to the value) 
+* callable object (lambda, proc...) that accepts either 1 parameter (the value) or 2 parameters (the value and the object)
+  
+```ruby
+class ExampleItem
+  include Eapi::Item
+  
+  property :something, convert_with: :to_s
+  property :other, convert_with: ->(val) { "This is #{val}" }
+  property :third, convert_with: ->(val, obj) do
+    s = obj.something
+    c = obj.send :converted_value_for, :something
+    "I am #{val} with some #{s.inspect} as #{c.inspect}"
+  end
+end
+
+x = ExampleItem.new something: :x, other: 1, third: 'the third'
+x.render # => 
+# {
+#   # converted to string (`to_s` method called)
+#   something: 'x',                        
+# 
+#   # converted using the lambda
+#   other: 'This is 1',
+# 
+#   # converted using the lambda, with access to the context object
+#   third: "I am the third with some :x as \"x\""
+# }
+```
+
 #### Ignoring values
 
 By default, any `nil` values will be omitted in the final structure by the `perform_render` method, in both `Item` and `List`.
