@@ -122,6 +122,19 @@ x.render # =>
 # }
 ```
 
+On a `List` object, it will work as conversion for every element.
+
+```ruby
+class ExampleList
+  include Eapi::List
+  
+  elements convert_with: :to_s
+end
+
+x = ExampleItem.new.add(1).add(2)
+x.render # => ["1", "2"]
+```
+
 #### Ignoring values
 
 By default, any `nil` values will be omitted in the final structure by the `perform_render` method, in both `Item` and `List`.

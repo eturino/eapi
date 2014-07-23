@@ -130,7 +130,7 @@ module Eapi
         end
 
         def yield_final_value_for_elements(value)
-          yield convert_value(value) unless to_be_ignored?(value)
+          yield convert_value(value, self.class.defined_convert_with_for_elements) unless to_be_ignored?(value)
         end
 
         def to_be_ignored?(value)
@@ -158,6 +158,10 @@ module Eapi
         def elements(definition)
           run_list_definition definition
           store_list_definition definition
+        end
+
+        def defined_convert_with_for_elements
+          definition_for_elements.fetch(:convert_with, nil)
         end
 
         def definition_for_elements
