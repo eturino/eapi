@@ -13,6 +13,7 @@ module Eapi
     def self.add_features(klass)
       Eapi::Common.add_features klass
       klass.extend(ClassMethods)
+      klass.include(Eapi::Methods::Properties::ListInstanceMethods)
       klass.extend(Eapi::Methods::Properties::ListCLassMethods)
     end
 
@@ -32,10 +33,6 @@ module Eapi
 
     def to_a
       render
-    end
-
-    def perform_render
-      _list.map { |val| convert_value val }.reject { |x| to_be_ignored x }
     end
 
     def _list
@@ -75,8 +72,11 @@ module Eapi
     protected :initialize_copy
 
     private
-    def to_be_ignored(value)
-      Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.elements_ignore_definition
+    def perform_render
+      _list.reduce([]) do |array, value|
+        set_value_in_final_array(array, value)
+        array
+      end
     end
 
     # transpose, assoc, rassoc , permutation, combination, repeated_permutation, repeated_combination, product, pack ?? => do not use the methods

@@ -118,6 +118,22 @@ module Eapi
         private :store_property_definition
       end
 
+      module ListInstanceMethods
+        def set_value_in_final_array(array, value)
+          yield_final_value_for_elements(value) do |val|
+            array << val
+          end
+        end
+
+        def yield_final_value_for_elements(value)
+          yield convert_value(value) unless to_be_ignored?(value)
+        end
+
+        def to_be_ignored?(value)
+          Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.elements_ignore_definition
+        end
+      end
+
       module ListCLassMethods
         def elements_allow_raw
           property_allow_raw(:_list)

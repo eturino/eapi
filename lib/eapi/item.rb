@@ -16,6 +16,7 @@ module Eapi
       render
     end
 
+    private
     def perform_render
       {}.tap do |hash|
         _properties.each do |prop|
