@@ -336,6 +336,79 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
+#### `converted_or_default_value_for` method
+
+It will return the converted value for the property. If that value is to be ignored (following the rules described with the `ignore` option) then it will return the default one (defined by the `default` option), or `nil` if there is no default value.
+
+```ruby
+class TestKlassWithDefault
+  include Eapi::Item
+  
+  property :something, ignore: :blank?, default: 123
+end
+
+x = TestKlassWithDefault.new
+x.something ''
+x.converted_or_default_value_for(:something) # => 123
+
+x.something 'not blank'
+x.converted_or_default_value_for(:something) # => 'not blank'
+
+
+class TestKlassWithoutDefault
+  include Eapi::Item
+  
+  property :something, ignore: :blank?
+end
+
+x = TestKlassWithoutDefault.new
+x.something ''
+x.converted_or_default_value_for(:something) # => nil
+
+x.something 'not blank'
+x.converted_or_default_value_for(:something) # => 'not blank'
+```
+  
+#### `yield_final_value_for` method
+
+It will yield the converted value for the property. If that value is to be ignored (following the rules described with the `ignore` option) then it will yield the default one (defined by the `default` option), or it won't yield anything if there is no default value.
+
+```ruby
+class TestKlassWithDefault
+  include Eapi::Item
+  
+  property :something, ignore: :blank?, default: 123
+end
+
+x = TestKlassWithDefault.new
+x.something ''
+check = :initial_check
+x.yield_final_value_for(:something) { |v| check = v }
+check # => 123
+
+x.something 'not blank'
+check = :initial_check
+x.yield_final_value_for(:something) { |v| check = v }
+check # => 'not blank'
+
+
+class TestKlassWithoutDefault
+  include Eapi::Item
+  
+  property :something, ignore: :blank?
+end
+
+x = TestKlassWithoutDefault.new
+check = :initial_check
+x.yield_final_value_for(:something) { |v| check = v }
+check # => :initial_check
+
+x.something 'not blank'
+check = :initial_check
+x.yield_final_value_for(:something) { |v| check = v }
+check # => 'not blank'
+``` 
+
 ### Property definition
 
 When defining the property, we can specify some options to specify what values are expected in that property. This serves for validation and automatic initialisation.

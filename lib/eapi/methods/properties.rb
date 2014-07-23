@@ -8,14 +8,6 @@ module Eapi
           self.class.properties
         end
 
-        def converted_value_for(prop)
-          convert_value get(prop)
-        end
-
-        def convert_value(value)
-          Eapi::ValueConverter.convert_value(value)
-        end
-
         def get(field)
           getter = Eapi::Methods::Names.getter field
           send(getter)
@@ -24,6 +16,43 @@ module Eapi
         def set(field, value)
           setter = Eapi::Methods::Names.fluent_setter field
           send(setter, value)
+        end
+
+        def converted_value_for(prop)
+          convert_value get(prop)
+        end
+
+        def convert_value(value)
+          Eapi::ValueConverter.convert_value(value)
+        end
+
+        def converted_or_default_value_for(property)
+          yield_final_value_for(property) { |val| return val }
+        end
+
+        # will yield the converted value if it is not to be ignored,
+        # will yield the default value if it is set and the converted value is to be ignored
+        # will not yield anything otherwise
+        def yield_final_value_for(property)
+          val      = converted_value_for(property)
+          accepted = !to_be_ignored?(val, property)
+
+          if accepted
+            yield val
+          elsif self.class.default_value_for?(property)
+            yield self.class.default_value_for(property)
+          end
+        end
+
+        def to_be_ignored?(value, property)
+          Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.ignore_definition(property)
+        end
+
+        private
+        def set_value_in_final_hash(hash, property)
+          yield_final_value_for(property) do |val|
+            hash[property] = val
+          end
         end
       end
 
