@@ -457,5 +457,32 @@ RSpec.describe Eapi do
       end
 
     end
+
+    describe 'render' do
+      class TestListItemRender
+        include Eapi::Item
+
+        property :something
+        property :other
+
+        def perform_render
+          {something => other}
+        end
+      end
+
+      class TestListRender
+        include Eapi::List
+
+        elements type: 'TestListItemRender'
+      end
+
+      let(:item) { TestListItemRender.new something: :f, other: :o }
+      subject { TestListRender.new.add(item) }
+      let(:expected) { [{f: :o}] }
+
+      it 'renders to an array, rendering each element' do
+        expect(subject.render).to eq expected
+      end
+    end
   end
 end
