@@ -79,6 +79,12 @@ module Eapi
       end
     end
 
+    def perform_before_validation
+      if self.class.elements_convert_before_validation?
+        _list.map! { |v| convert_value_for_element(v) }
+      end
+    end
+
     # transpose, assoc, rassoc , permutation, combination, repeated_permutation, repeated_combination, product, pack ?? => do not use the methods
   end
 

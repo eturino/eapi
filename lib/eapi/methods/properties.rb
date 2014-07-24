@@ -116,6 +116,10 @@ module Eapi
           definition_for(property).fetch(:convert_with, nil)
         end
 
+        def convert_before_validation?(property)
+          definition_for(property).fetch(:convert_before_validation, false)
+        end
+
         private :_property_allow_raw
         private :_property_definitions
         private :run_property_definition
@@ -130,11 +134,15 @@ module Eapi
         end
 
         def yield_final_value_for_elements(value)
-          yield convert_value(value, self.class.defined_convert_with_for_elements) unless to_be_ignored?(value)
+          yield convert_value_for_element(value) unless to_be_ignored?(value)
         end
 
         def to_be_ignored?(value)
           Eapi::ValueIgnoreChecker.to_be_ignored? value, self.class.elements_ignore_definition
+        end
+
+        def convert_value_for_element(value)
+          convert_value(value, self.class.elements_defined_convert_with_for)
         end
       end
 
@@ -155,12 +163,16 @@ module Eapi
           definition_for_elements.fetch(:ignore, :nil?)
         end
 
+        def elements_convert_before_validation?
+          definition_for_elements.fetch(:convert_before_validation, false)
+        end
+
         def elements(definition)
           run_list_definition definition
           store_list_definition definition
         end
 
-        def defined_convert_with_for_elements
+        def elements_defined_convert_with_for
           definition_for_elements.fetch(:convert_with, nil)
         end
 

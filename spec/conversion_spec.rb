@@ -53,4 +53,65 @@ RSpec.describe Eapi do
       end
     end
   end
+
+  describe 'convert_before_validation option' do
+
+    context 'Item' do
+      class ExampleItemConvertBeforeValidation
+        include Eapi::Item
+
+        property :something, convert_with: :to_i, convert_before_validation: true
+        property :normal, convert_with: :to_i
+
+        validates :something, inclusion: {in: [1, 2, 3]}
+        validates :normal, inclusion: {in: [1, 2, 3]}
+      end
+
+      context 'enabled' do
+        subject { ExampleItemConvertBeforeValidation.new something: '1', normal: 2 }
+        it 'the conversion happens before validation' do
+          expect(subject).to be_valid
+        end
+      end
+
+      context 'disabled' do
+        subject { ExampleItemConvertBeforeValidation.new something: 1, normal: '2' }
+        it 'the conversion happens on rendering, after validation' do
+          expect(subject).not_to be_valid
+        end
+      end
+    end
+
+    context 'List' do
+      class ExampleListConvertBeforeValidationEnabled
+        include Eapi::List
+
+        elements convert_with: :to_i, convert_before_validation: true, validate_with: ->(record, attr, value) do
+          record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
+        end
+      end
+
+      class ExampleListConvertBeforeValidationDisabled
+        include Eapi::List
+
+        elements convert_with: :to_i, validate_with: ->(record, attr, value) do
+          record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
+        end
+      end
+
+      context 'enabled' do
+        subject { ExampleListConvertBeforeValidationEnabled.new.add('1') }
+        it 'the conversion happens before validation' do
+          expect(subject).to be_valid
+        end
+      end
+
+      context 'disabled' do
+        subject { ExampleListConvertBeforeValidationDisabled.new.add('1') }
+        it 'the conversion happens on rendering, after validation' do
+          expect(subject).not_to be_valid
+        end
+      end
+    end
+  end
 end

@@ -135,6 +135,59 @@ x = ExampleItem.new.add(1).add(2)
 x.render # => ["1", "2"]
 ```
 
+#### Convert values before validation using `convert_before_validation` option
+
+If `convert_before_validation` option is enabled, then the conversion will occur before validation
+
+```ruby
+class ExampleItem
+  include Eapi::Item
+  
+  property :something, convert_with: :to_i, convert_before_validation: true
+  property :normal, convert_with: :to_i
+  
+  validates :something, inclusion: { in: [1, 2, 3] }
+  validates :normal, inclusion: { in: [1, 2, 3] }
+end
+
+# the conversion happens before validation, so it passes
+x = ExampleItem.new something: '1', normal: 2
+x.valid? # => true
+
+# the conversion happens on rendering, after validation, so it fails
+x = ExampleItem.new something: 1, normal: '2'
+x.valid? # => false
+```
+
+In `List` it will work on elements.
+
+```ruby
+class ExampleListConvertBeforeValidationEnabled
+  include Eapi::List
+
+  elements convert_with: :to_i, convert_before_validation: true, validate_with: ->(record, attr, value) do
+    record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
+  end
+end
+
+class ExampleListConvertBeforeValidationDisabled
+  include Eapi::List
+
+  elements convert_with: :to_i, validate_with: ->(record, attr, value) do
+    record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
+  end
+end
+
+
+# the conversion happens before validation, so it passes
+x = ExampleListConvertBeforeValidationEnabled.new.add('1')
+x.valid? # => true
+
+# the conversion happens on rendering, after validation, so it fails
+x = ExampleListConvertBeforeValidationDisabled.new.add('1')
+x.valid? # => false
+```
+
 #### Ignoring values
 
 By default, any `nil` values will be omitted in the final structure by the `perform_render` method, in both `Item` and `List`.

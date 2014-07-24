@@ -23,6 +23,11 @@ module Eapi
         raise Eapi::Errors::InvalidElementError, "errors: #{errors.full_messages}, self: #{self.inspect}" unless valid?
       end
 
+      def valid?(*)
+        perform_before_validation
+        super
+      end
+
       def render
         validate!
         perform_render
