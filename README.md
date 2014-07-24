@@ -14,8 +14,14 @@ Main features:
 * list support
 * validation
 * rendering to `Hash` or `Array`
+* custom conversion of values
 * raw `Hash` or `Array` support to skip type check validations
 * omit `nil` values automatically
+* custom preparation of values before validation
+
+## WIP Warning
+
+Until the release of the first stable version `1.0`, new versions can contain breaking changes.
 
 ## Usage
 
