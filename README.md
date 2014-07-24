@@ -442,7 +442,7 @@ x.one # => :fluent
 res.equal? x # => true
 ```
 
-#### `converted_or_default_value_for` method
+#### `converted_or_default_value_for` method (aka `final_value_for`)
 
 It will return the converted value for the property. If that value is to be ignored (following the rules described with the `ignore` option) then it will return the default one (defined by the `default` option), or `nil` if there is no default value.
 
@@ -456,9 +456,11 @@ end
 x = TestKlassWithDefault.new
 x.something ''
 x.converted_or_default_value_for(:something) # => 123
+x.final_value_for(:something) # => 123
 
 x.something 'not blank'
 x.converted_or_default_value_for(:something) # => 'not blank'
+x.final_value_for(:something) # => 'not blank'
 
 
 class TestKlassWithoutDefault
@@ -470,9 +472,11 @@ end
 x = TestKlassWithoutDefault.new
 x.something ''
 x.converted_or_default_value_for(:something) # => nil
+x.final_value_for(:something) # => nil
 
 x.something 'not blank'
 x.converted_or_default_value_for(:something) # => 'not blank'
+x.final_value_for(:something) # => 'not blank'
 ```
   
 #### `yield_final_value_for` method

@@ -41,6 +41,10 @@ module Eapi
           yield_final_value_for(property) { |val| return val }
         end
 
+        def final_value_for(property)
+          converted_or_default_value_for(property)
+        end
+
         # will yield the converted value if it is not to be ignored,
         # will yield the default value if it is set and the converted value is to be ignored
         # will not yield anything otherwise

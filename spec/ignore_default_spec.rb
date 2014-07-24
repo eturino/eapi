@@ -29,15 +29,17 @@ RSpec.describe Eapi do
         expect(subject.render).to eq expected
       end
 
-      describe '#converted_or_default_value_for' do
+      describe '#converted_or_default_value_for and #final_value_for (same)' do
         it 'returns the converted value if it is not ignored' do
           subject.something 1
           expect(subject.converted_or_default_value_for :something).to eq 1
+          expect(subject.final_value_for :something).to eq 1
         end
 
         it 'returns the default value if it is ignored' do
           subject.something ""
           expect(subject.converted_or_default_value_for :something).to eq 123
+          expect(subject.final_value_for :something).to eq 123
         end
 
         describe 'without default value' do
@@ -46,6 +48,7 @@ RSpec.describe Eapi do
           it 'returns nil if the converted value is ignored' do
             subject.something ""
             expect(subject.converted_or_default_value_for :something).to be_nil
+            expect(subject.final_value_for :something).to be_nil
           end
         end
       end
