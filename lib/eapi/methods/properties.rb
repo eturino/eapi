@@ -18,6 +18,17 @@ module Eapi
           send(setter, value)
         end
 
+        def prepare_value_for(prop)
+          value        = get(prop)
+          prepare_with = self.class.defined_prepare_with_for(prop)
+
+          if prepare_with
+            convert_value(value, prepare_with)
+          else
+            value
+          end
+        end
+
         def converted_value_for(prop)
           convert_value get(prop), self.class.defined_convert_with_for(prop)
         end
@@ -116,8 +127,12 @@ module Eapi
           definition_for(property).fetch(:convert_with, nil)
         end
 
-        def convert_before_validation?(property)
-          definition_for(property).fetch(:convert_before_validation, false)
+        def defined_prepare_with_for(property)
+          definition_for(property).fetch(:prepare_with, nil)
+        end
+
+        def prepare_value_for?(property)
+          !!defined_prepare_with_for(property)
         end
 
         private :_property_allow_raw
@@ -144,6 +159,16 @@ module Eapi
         def convert_value_for_element(value)
           convert_value(value, self.class.elements_defined_convert_with_for)
         end
+
+        def prepare_value_for_element(value)
+          prepare_with = self.class.elements_defined_prepare_with_for
+
+          if prepare_with
+            convert_value(value, prepare_with)
+          else
+            value
+          end
+        end
       end
 
       module ListCLassMethods
@@ -163,17 +188,21 @@ module Eapi
           definition_for_elements.fetch(:ignore, :nil?)
         end
 
-        def elements_convert_before_validation?
-          definition_for_elements.fetch(:convert_before_validation, false)
+        def prepare_value_for_elements?
+          !!elements_defined_prepare_with_for
+        end
+
+        def elements_defined_prepare_with_for
+          definition_for_elements.fetch(:prepare_with, nil)
+        end
+
+        def elements_defined_convert_with_for
+          definition_for_elements.fetch(:convert_with, nil)
         end
 
         def elements(definition)
           run_list_definition definition
           store_list_definition definition
-        end
-
-        def elements_defined_convert_with_for
-          definition_for_elements.fetch(:convert_with, nil)
         end
 
         def definition_for_elements

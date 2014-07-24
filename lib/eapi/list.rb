@@ -80,8 +80,8 @@ module Eapi
     end
 
     def perform_before_validation
-      if self.class.elements_convert_before_validation?
-        _list.map! { |v| convert_value_for_element(v) }
+      if self.class.prepare_value_for_elements?
+        _list.map! { |v| prepare_value_for_element(v) }
       end
     end
 

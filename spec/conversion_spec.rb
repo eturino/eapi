@@ -60,8 +60,8 @@ RSpec.describe Eapi do
       class ExampleItemConvertBeforeValidation
         include Eapi::Item
 
-        property :something, convert_with: :to_i, convert_before_validation: true
-        property :normal, convert_with: :to_i
+        property :something, prepare_with: :to_i
+        property :normal
 
         validates :something, inclusion: {in: [1, 2, 3]}
         validates :normal, inclusion: {in: [1, 2, 3]}
@@ -86,7 +86,7 @@ RSpec.describe Eapi do
       class ExampleListConvertBeforeValidationEnabled
         include Eapi::List
 
-        elements convert_with: :to_i, convert_before_validation: true, validate_with: ->(record, attr, value) do
+        elements prepare_with: :to_i, validate_with: ->(record, attr, value) do
           record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
         end
       end

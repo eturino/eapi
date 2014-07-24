@@ -135,16 +135,16 @@ x = ExampleItem.new.add(1).add(2)
 x.render # => ["1", "2"]
 ```
 
-#### Convert values before validation using `convert_before_validation` option
+#### Prepare values before validation using `prepare_with` option
 
-If `convert_before_validation` option is enabled, then the conversion will occur before validation
+Same as `convert_with` but it is used before validation.
 
 ```ruby
 class ExampleItem
   include Eapi::Item
   
-  property :something, convert_with: :to_i, convert_before_validation: true
-  property :normal, convert_with: :to_i
+  property :something, prepare_with: to_i
+  property :normal,
   
   validates :something, inclusion: { in: [1, 2, 3] }
   validates :normal, inclusion: { in: [1, 2, 3] }
@@ -165,7 +165,7 @@ In `List` it will work on elements.
 class ExampleListConvertBeforeValidationEnabled
   include Eapi::List
 
-  elements convert_with: :to_i, convert_before_validation: true, validate_with: ->(record, attr, value) do
+  elements prepare_with: :to_i, validate_with: ->(record, attr, value) do
     record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
   end
 end
@@ -173,7 +173,7 @@ end
 class ExampleListConvertBeforeValidationDisabled
   include Eapi::List
 
-  elements convert_with: :to_i, validate_with: ->(record, attr, value) do
+  elements validate_with: ->(record, attr, value) do
     record.errors.add(attr, 'must pass my custom validation') unless value.kind_of?(Fixnum)
   end
 end

@@ -27,8 +27,8 @@ module Eapi
 
     def perform_before_validation
       _properties.each do |property|
-        if self.class.convert_before_validation?(property)
-          self.set(property, converted_value_for(property))
+        if self.class.prepare_value_for?(property)
+          self.set(property, prepare_value_for(property))
         end
       end
     end
